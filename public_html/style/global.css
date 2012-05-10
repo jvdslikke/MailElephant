@@ -1,0 +1,42 @@
+@CHARSET "UTF-8";
+
+/******** layout */
+
+#Header {
+}
+
+#Content {
+	margin-left: 13em;
+	padding: 1em;
+}
+
+#Menu {
+	float: left;
+	width: 12em;
+}
+
+/******** styles */
+
+#Header {
+	border-bottom: 1px solid black;	
+}
+
+#Content {
+	border-left: 1px solid black;	
+}
+
+/**** tables */
+
+table {
+	border-collapse: collapse;
+}
+
+table td,
+table th {
+	border: 1px solid lightgrey;
+	padding: 0.1em 0.4em;
+}
+
+table thead td {
+	
+}

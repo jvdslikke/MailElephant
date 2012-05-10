@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">  
+	<head>
+		<meta charset="utf-8">
+		<title>MailElephant</title>
+		
+		<?php $this->headLink()->prependStylesheet("/style/global.css") ?>
+		<?php echo $this->headLink() ?>
+	</head>
+	<body>
+	
+		<div id="Header">
+			<h1>MailElephant</h1>
+		</div>
+		
+		<div id="Menu">
+			<ul>
+				<li>
+					<a href="/subscribtions">subscribtions</a>
+				</li>
+				<li>
+					<a href="/newsletters">newsletters</a>
+					<ul>
+						<li>
+							<a href="/newsletters/add">upload email</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		
+		<div id="Content">
+			<?php echo $this->layout()->content ?>
+		</div>
+	</body>
+</html>

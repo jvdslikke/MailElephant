@@ -1,0 +1,21 @@
+<table>
+	<thead>
+		<tr>
+			<th>date</th>
+			<th>subject</th>
+		</tr>
+	</thead>
+	<tbody>
+	<?php 
+		foreach($this->newsletters as $newsletter):
+			/* @var $newsletter Newsletter_Model_Newsletter */ 
+	?>
+		<tr>
+			<td><?php echo $newsletter->getCreated()->format('c') ?></td>
+			<td><?php echo $newsletter->getSubject() ?></td>
+		</tr>
+	<?php
+		endforeach; 
+	?>	
+	</tbody>
+</table>	
