@@ -15,8 +15,18 @@ class MailElephantModel_NewsletterAttachment extends Common_File
 		$this->cid = $cid;
 	}
 	
+	public function getMimeType()
+	{
+		return $this->mimeType;
+	}
+	
 	public function getName()
 	{
 		return $this->name;
+	}
+	
+	public function getCid()
+	{
+		return $this->cid;
 	}
 }

@@ -15,6 +15,11 @@
 	width: 12em;
 }
 
+#Toolbar {
+	margin: -0.5em -1em 1em -0.5em;
+	padding-bottom: 0.5em;
+}
+
 /******** styles */
 
 #Header {
@@ -23,6 +28,10 @@
 
 #Content {
 	border-left: 1px solid black;	
+}
+
+#Toolbar {
+	border-bottom: 1px solid black;
 }
 
 /**** tables */

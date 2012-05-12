@@ -55,19 +55,43 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	
 	public function upsert($scheme, $identifyingData, $data)
 	{		
-		$this->_db->{$scheme}->update(
-				$identifyingData,
+		$result = $this->_db->{$scheme}->update(
+				$this->handleIdentifyingData($identifyingData),
 				array('$set' => $data),
 				array('upsert'=>true, 'multiple'=>true, 'safe'=>true));
+		
+		return $result['n'];
+	}
+	
+	private function handleIdentifyingData($identifyingData)
+	{
+		if(isset($identifyingData['_id']))
+		{
+			$identifyingData['_id'] = new MongoId($identifyingData['_id']);
+		}
+		
+		return $identifyingData;
+	}
+	
+	public function update($scheme, $identifyingData, $data)
+	{		
+		$result = $this->_db->{$scheme}->update(
+				$this->handleIdentifyingData($identifyingData),
+				array('$set'=>$data),
+				array('multiple'=>true, 'safe'=>true));
+		
+		return $result['n'];
 	}
 	
 	public function fetchOneBy($scheme, $identifyingData)
 	{
+		$identifyingData = $this->handleIdentifyingData($identifyingData);
 		return $this->_db->{$scheme}->findOne($identifyingData);
 	}
 	
 	public function fetchMoreBy($scheme, $data)
 	{
+		$data = $this->handleIdentifyingData($data);
 		return iterator_to_array($this->_db->{$scheme}->find($data));		
 	}
 	
@@ -78,6 +102,7 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	
 	public function exists($scheme, $identifyingData)
 	{
+		$identifyingData = $this->handleIdentifyingData($identifyingData);
 		return $this->fetchOneBy($scheme, $identifyingData) !== null;
 	}
 	

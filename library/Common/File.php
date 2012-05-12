@@ -119,6 +119,24 @@ class Common_File
 		}
 	}
 	
+	public function output()
+	{
+		$oldOpenMode = $this->fopenMode;
+		$this->setFopenMode('rb');
+		
+		$handle = $this->getHandle();
+		
+		while(!feof($handle))
+		{
+			echo fread($handle, 4096);
+				
+			ob_flush();
+			flush();
+		}
+		
+		$this->setFopenMode($oldOpenMode);
+	}
+	
 	public function __destruct()
 	{
 		if($this->handle !== null)

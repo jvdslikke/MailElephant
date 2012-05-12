@@ -3,6 +3,8 @@
 		<tr>
 			<th>date</th>
 			<th>subject</th>
+			<th># attachments</th>
+			<th></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -13,6 +15,10 @@
 		<tr>
 			<td><?php echo $newsletter->getCreated()->format('c') ?></td>
 			<td><?php echo $newsletter->getSubject() ?></td>
+			<td><?php echo $newsletter->getNumAttachments() ?></td>
+			<td>
+				<a href="<?php echo $this->url(array('action'=>"view", 'newsletterid'=>$newsletter->getId())) ?>">view</a>
+			</td>
 		</tr>
 	<?php
 		endforeach; 

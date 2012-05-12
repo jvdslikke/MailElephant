@@ -44,7 +44,7 @@ class Common_Mailbox
 		$plainTextBody = $this->fetchPlainTextBody($index, $msgStructure, array());
 		$htmlBody = $this->fetchHtmlBody($index, $msgStructure, array());
 		
-		$newsletter = new MailElephant_Model_Newsletter(null, $subject, $date, $plainTextBody, $htmlBody);
+		$newsletter = new MailElephantModel_Newsletter(null, $subject, $date, $plainTextBody, $htmlBody);
 		
 		$newsletter->setAttachments($this->fetchAttachments($index, $msgStructure, array()));
 		
@@ -133,7 +133,7 @@ class Common_Mailbox
 			{
 				$mimeType = self::$attachmentPartTypes[$structure->type].'/'.strtolower($structure->subtype);
 
-				$attachment = new MailElephant_Model_NewsletterAttachment($mimeType, $name, $cid);
+				$attachment = new MailElephantModel_NewsletterAttachment($mimeType, $name, $cid);
 				
 				$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
 				if(self::$attachmentEncodings[$structure->encoding] == "base64")

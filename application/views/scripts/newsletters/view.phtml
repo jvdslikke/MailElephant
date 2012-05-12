@@ -1,0 +1,19 @@
+<div id="Toolbar">
+	<?php if($this->newsletter->hasPlainTextBody()): ?>
+		<a href="<?php echo $this->url(array('mode'=>"plaintext")) ?>" class="<?php if($this->mode == 'plaintext'): ?>selected<?php endif; ?>">
+			plain text</a>
+	<?php endif; ?>
+	
+	<?php if($this->newsletter->hasHtmlBody()): ?>
+		<a href="<?php echo $this->url(array('mode'=>"html")) ?>" class="<?php if($this->mode == 'html'): ?>selected<?php endif; ?>">
+			html</a>
+	<?php endif; ?>
+</div>
+
+<?php
+	if($this->mode == 'html'):
+		echo $this->newsletter->getHtmlBody(true);
+	elseif($this->mode == 'plaintext'):
+		echo nl2br($this->newsletter->getPlainTextBody());
+	endif;
+?>
