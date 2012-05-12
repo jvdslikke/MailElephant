@@ -1,0 +1,7 @@
+<?php 
+	$this->headScript()->appendFile("/lib/ckeditor/ckeditor.js");
+	$this->headScript()->appendFile("/lib/ckeditor/adapters/jquery.js");
+	$this->headScript()->appendFile("/script/newsletter-edit.js");
+?>
+	
+<textarea><?php echo $this->newsletter->getHtmlBody(true) ?></textarea>

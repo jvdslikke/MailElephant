@@ -17,7 +17,10 @@
 			<td><?php echo $newsletter->getSubject() ?></td>
 			<td><?php echo $newsletter->getNumAttachments() ?></td>
 			<td>
-				<a href="<?php echo $this->url(array('action'=>"view", 'newsletterid'=>$newsletter->getId())) ?>">view</a>
+				<a href="<?php echo $this->url(array('action'=>"view", 'newsletterid'=>$newsletter->getId())) ?>">
+					view</a>
+				<a href="<?php echo $this->url(array('action'=>"edit", 'newsletterid'=>$newsletter->getId())) ?>">
+					edit</a>
 			</td>
 		</tr>
 	<?php

@@ -4,8 +4,16 @@
 		<meta charset="utf-8">
 		<title>MailElephant</title>
 		
-		<?php $this->headLink()->prependStylesheet("/style/global.css") ?>
-		<?php echo $this->headLink() ?>
+		<?php 
+			$this->headLink()->prependStylesheet("/style/global.css");
+			echo $this->headLink();
+		?>
+		
+		<?php 
+			$this->headScript()->prependFile("/script/global.js");
+			$this->headScript()->prependFile("/script/jquery-1.7.2.min.js");
+			echo $this->headScript();
+		?>
 	</head>
 	<body>
 	

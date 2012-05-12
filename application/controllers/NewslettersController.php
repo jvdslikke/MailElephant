@@ -107,4 +107,11 @@ class NewslettersController extends Zend_Controller_Action
 		
 		$attachment->output();
 	}
+	
+	public function editAction()
+	{
+		$newsletter = $this->getNewsletterByRequest();
+		
+		$this->view->newsletter = $newsletter;
+	}
 }
