@@ -18,13 +18,19 @@ class Common_Mailbox
 			3 => "base64"
 	);
 	
-	public function __construct($path)
+	public function __construct($path, $username='', $password='')
 	{		
-		$this->imapResource = @imap_open($path, '', '', OP_READONLY);
+		$this->imapResource = @imap_open($path, $username, $password, OP_READONLY);
 		
 		if(!$this->imapResource)
 		{
-			throw new Exception("opening the mailbox failed");
+			$error = imap_last_error();
+			if(!$error)
+			{
+				$error = "unknown error";
+			}			
+			
+			throw new Exception("opening the mailbox failed: ".$error);
 		}
 	}
 	

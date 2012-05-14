@@ -12,6 +12,11 @@ class NewslettersController extends Zend_Controller_Action
 	
 	public function addAction()
 	{
+		
+	}
+	
+	public function addFileAction()
+	{
 		$form = new MailElephantWeb_Form_EmailUploadForm();
 		$this->view->form = $form;
 		
@@ -39,6 +44,25 @@ class NewslettersController extends Zend_Controller_Action
 				unlink($upload->getFileName('emailfile'));
 				
 				//TODO display ok message, redirect to index
+			}
+		}
+	}
+	
+	public function addFromMailboxAction()
+	{
+		$form = new MailElephantWeb_Form_Mailbox();
+		$this->view->form = $form;
+		
+		if($this->getRequest()->isPost())
+		{
+			$formData = $this->getRequest()->getPost();
+			
+			if($form->isValid($formData))
+			{
+				$mailbox = new Common_Mailbox(
+						$formData['mailbox'], $formData['username'], $formData['password']);
+				
+				
 			}
 		}
 	}

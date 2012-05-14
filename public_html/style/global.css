@@ -34,6 +34,11 @@
 	border-bottom: 1px solid black;
 }
 
+a.selected,
+a.selected:active {
+	text-decoration: none;
+}
+
 /**** tables */
 
 table {
