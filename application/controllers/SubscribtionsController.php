@@ -1,10 +1,10 @@
 <?php
 
-class SubscribtionsController extends Zend_Controller_Action
+class SubscribtionsController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
 	{
 		$this->view->subscribtions = MailElephantModel_Subscribtion::fetchAll(
-				$this->getInvokeArg('bootstrap')->getResource('storage'));
+				$this->getStorageProvider());
 	}
 }

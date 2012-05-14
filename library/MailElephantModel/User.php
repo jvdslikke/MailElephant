@@ -3,18 +3,18 @@
 class MailElephantModel_User
 {
 	// ensure index
-	private $username;
+	private $email;
 	private $passwordHash;
 	
-	public function __construct($username, $passwordHash)
+	public function __construct($email, $passwordHash)
 	{
-		$this->username = $username;
+		$this->email = $email;
 		$this->passwordHash = $passwordHash;
 	}
 	
-	public function getUsername()
+	public function getEmail()
 	{
-		return $this->username;
+		return $this->email;
 	}
 	
 	public function getPasswordHash()
@@ -28,22 +28,22 @@ class MailElephantModel_User
 	}
 	
 	
-	public static function fetchByUsername(Common_Storage_Provider_Interface $db, $username)
-	{		
-		$result = $db->fetchOneBy('users', array('_id'=>$username));
+	public static function fetchOneByEmail(Common_Storage_Provider_Interface $db, $email)
+	{
+		$result = $db->fetchOneBy('users', array('email'=>$email));
 		
 		if($result === null)
 		{
 			return null;
 		}
 		
-		return new self($result['_id'], $result['passwordHash']);
+		return new self($result['email'], $result['passwordHash']);
 	}
 	
 	public function save(Common_Storage_Provider_Interface $db)
 	{
 		$db->upsert('users', 
-				array('_id' => $this->username), 
+				array('email' => $this->email), 
 				array('passwordHash' => $this->passwordHash));
 	}
 }

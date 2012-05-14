@@ -1,6 +1,6 @@
 <?php
 
-class MailElephantWeb_Form_EmailUploadForm extends Zend_Form
+class MailElephantWeb_Form_EmailUpload extends Zend_Form
 {
 	public function __construct($options = null)
 	{

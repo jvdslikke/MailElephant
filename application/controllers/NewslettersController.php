@@ -1,11 +1,10 @@
 <?php
 
-class NewslettersController extends Zend_Controller_Action
+class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
 	{
-		$newsletters = MailElephantModel_Newsletter::fetchAll(
-				$this->getInvokeArg('bootstrap')->getResource('storage'));
+		$newsletters = MailElephantModel_Newsletter::fetchAll($this->getStorageProvider());
 		
 		$this->view->newsletters = $newsletters;
 	}
@@ -17,7 +16,7 @@ class NewslettersController extends Zend_Controller_Action
 	
 	public function addFileAction()
 	{
-		$form = new MailElephantWeb_Form_EmailUploadForm();
+		$form = new MailElephantWeb_Form_EmailUpload();
 		$this->view->form = $form;
 		
 		if($this->getRequest()->isPost())
@@ -38,7 +37,7 @@ class NewslettersController extends Zend_Controller_Action
 				
 				unset($mailbox);
 				
-				$newsletter->save($this->getInvokeArg('bootstrap')->getResource('storage'), 
+				$newsletter->save($this->getStorageProvider(), 
 						$this->getInvokeArg('bootstrap')->getOption('datapath'));
 				
 				unlink($upload->getFileName('emailfile'));
@@ -92,7 +91,7 @@ class NewslettersController extends Zend_Controller_Action
 		}
 		
 		$newsletter = MailElephantModel_Newsletter::fetchOneById(
-				$this->getInvokeArg('bootstrap')->getResource('storage'),
+				$this->getStorageProvider(),
 				$newsletterId);
 		
 		if($newsletter === null)
@@ -122,9 +121,7 @@ class NewslettersController extends Zend_Controller_Action
 		}
 		
 		// output attachment
-		
-		$this->_helper->layout()->disableLayout();
-		$this->_helper->viewRenderer->setNoRender(true);
+		$this->disableView();
 		
 		$this->getResponse()->setHeader('Content-Type', $attachment->getMimeType());
 		$this->getResponse()->sendHeaders();

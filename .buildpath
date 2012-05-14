@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <buildpath>
 	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+	<buildpathentry kind="src" path="public_html"/>
+	<buildpathentry kind="src" path="application"/>
+	<buildpathentry kind="src" path="cli"/>
+	<buildpathentry kind="src" path="library"/>
 	<buildpathentry kind="src" path="tests"/>
-	<buildpathentry excluding="data/|tests/" kind="src" path=""/>
 </buildpath>

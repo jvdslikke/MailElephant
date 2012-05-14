@@ -16,7 +16,7 @@ class MailElephantWeb_AuthenticationAdapter implements Zend_Auth_Adapter_Interfa
 	
 	public function authenticate()
 	{
-		$identity = $this->_storage->findOneBy('users', array('_id'=>$this->_username));
+		$identity = MailElephantModel_User::fetchOneByEmail($this->_storage, $this->_username);
 		if(!$identity)
 		{
 			return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, null);
