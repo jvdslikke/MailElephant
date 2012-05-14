@@ -1,3 +1,21 @@
 <?php $this->layout()->nestedLayout = 'newsletter-add-toolbar' ?>
 
+<?php $this->headScript()->appendFile("/script/mailboxes.js") ?>
+
+<ul id="Mailboxes">
+	<?php foreach($this->mailboxes as $mailbox): ?>
+		<li>
+			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>urlencode($mailbox->getMailbox()))) ?>">
+				<?php echo $mailbox->getMailbox() ?></a>
+		</li>
+	<?php endforeach; ?>
+</ul>
+
+<ul id="MailboxMessages"></ul>
+
+<p>
+	<a href="<?php echo $this->url(array('action'=>"add-mailbox")) ?>">
+		define a mailbox</a>
+</p>
+
 <?php echo $this->form ?>

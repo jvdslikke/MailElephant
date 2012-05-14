@@ -49,8 +49,8 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	
 	public function addFromMailboxAction()
 	{
-		$form = new MailElephantWeb_Form_Mailbox();
-		$this->view->form = $form;
+		$user = Zend_Auth::getInstance()->getIdentity();
+		$this->view->mailboxes = $user->getMailboxes();
 		
 		if($this->getRequest()->isPost())
 		{
@@ -64,6 +64,66 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 				
 			}
 		}
+	}
+	
+	public function addMailboxAction()
+	{
+		$form = new MailElephantWeb_Form_Mailbox();
+		$this->view->form = $form;
+		
+		if($this->getRequest()->isPost())
+		{
+			$formData = $this->getRequest()->getPost();
+			
+			if($form->isValid($formData))
+			{
+				$mailbox = new MailElephantModel_Mailbox(
+						$formData['mailbox'], 
+						$formData['username'], 
+						$formData['password']);
+				
+				$this->getLoggedInUser()->addMailbox($mailbox);
+				$this->getLoggedInUser()->save($this->getStorageProvider());
+				
+				$this->_getRedirector()->gotoSimpleAndExit('add-from-mailbox');
+			}
+		}		
+	}
+	
+	public function openMailboxAction()
+	{
+		$mailboxData = null;
+		
+		foreach($this->getLoggedInUser()->getMailboxes() as $searchMailbox)
+		{
+			if($searchMailbox->getMailbox() == urldecode($this->getRequest()->getParam('mailbox')))
+			{
+				$mailboxData = $searchMailbox;
+			}
+		}
+		
+		if($mailboxData === null)
+		{
+			$this->jsonError("mailbox not found");
+		}
+		
+		/* @var $mailboxData MailElephantModel_Mailbox */
+		$mailbox = new Common_Mailbox(
+				$mailboxData->getMailbox(),
+				$mailboxData->getUsername(),
+				$mailboxData->getPassword());
+
+		$jsonHeaders = array();
+		
+		$msgs = $mailbox->getNumMessages();
+		foreach($mailbox->getHeaders($msgs-50, $msgs) as $header)
+		{
+			$jsonHeaders[] = array(
+					'subject' => $header->getSubject(),
+					'date' => $header->getDate()->format('c'));
+		}
+		
+		$this->sendJSON($jsonHeaders);
 	}
 
 	public function viewAction()

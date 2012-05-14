@@ -19,7 +19,7 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 	/**
 	 * @return Zend_Controller_Action_Helper_Redirector
 	 */
-	private function getRedirector()
+	protected function _getRedirector()
 	{
 		return $this->_helper->getHelper('Redirector');
 	}
@@ -27,5 +27,31 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 	public function refresh()
 	{
 		$this->getRedirector()->gotoRouteAndExit();
+	}
+	
+	public function sendJSON($jsonData)
+	{
+		$this->_helper->json($jsonData);
+	}
+	
+	public function jsonError($message, $code = 500)
+	{
+		$this->getResponse()->setHttpResponseCode($code);
+		
+		$jsonError = array('isError'=>true, 'errorMessage'=>$message);
+		$this->sendJSON(json_encode($jsonError));
+	}
+	
+	/**
+	 * @return MailElephantModel_User
+	 */
+	public function getLoggedInUser()
+	{
+		if(!Zend_Auth::getInstance()->hasIdentity())
+		{
+			return null;
+		}
+		
+		return Zend_Auth::getInstance()->getIdentity();
 	}
 }

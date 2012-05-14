@@ -15,12 +15,14 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->addResource('newsletters');
 		$acl->addResource('auth');
 		$acl->addResource('subscribtions');
+		$acl->addResource('error');
 		
 		// roles
 		$acl->addRole(self::GUEST_ROLE_ID);
 		$acl->addRole(self::AUTHENTICATED_ROLE_ID);
 		
 		// rules
+		$acl->allow(null, 'error');
 		$acl->allow(null, 'auth');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'newsletters');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'subscribtions');

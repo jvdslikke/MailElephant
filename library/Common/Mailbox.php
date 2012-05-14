@@ -39,6 +39,28 @@ class Common_Mailbox
 		return imap_num_msg($this->imapResource);
 	}
 	
+	public function getHeaders($from, $to)
+	{
+		$imapHeaders = imap_fetch_overview($this->imapResource, "$from:$to");
+		
+		$headers = array();
+		foreach($imapHeaders as $imapHeader)
+		{
+			$subject = null;
+			if(isset($imapHeader->subject))
+			{
+				$subject = $imapHeader->subject;
+			}
+			
+			$headers[] = new Common_Mailbox_Message_Header(
+					$imapHeader->msgno, 
+					$subject, 
+					new DateTime($imapHeader->date));
+		}
+		
+		return array_reverse($headers);
+	}
+	
 	public function getNewsletter($index)
 	{
 		$headerinfo = imap_headerinfo($this->imapResource, $index);
