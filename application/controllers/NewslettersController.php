@@ -4,6 +4,20 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
 	{
+		if($this->getRequest()->isPost() 
+				&& ($deleteNewsletterId = $this->getRequest()->getPost('delete-newsletterid', false)) !== false)
+		{			
+			$newsletter = MailElephantModel_Newsletter::fetchOneById(
+					$this->getStorageProvider(), $deleteNewsletterId);
+			
+			if($newsletter)
+			{
+				$newsletter->delete($this->getStorageProvider(), $this->getDataPath());
+				
+				//TODO message
+			}
+		}
+		
 		$newsletters = MailElephantModel_Newsletter::fetchAll($this->getStorageProvider());
 		
 		$this->view->newsletters = $newsletters;
@@ -27,13 +41,13 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 			{
 				$upload = new Zend_File_Transfer_Adapter_Http();
 				$upload->setDestination(
-						$this->getInvokeArg('bootstrap')->getOption('datapath')."/tmp",
+						$this->getDataPath().DIRECTORY_SEPARATOR."tmp",
 						'emailfile');
 				$upload->receive('emailfile');
 				
 				$mailbox = new Common_Mailbox($upload->getFileName('emailfile'));
 				
-				$newsletter = $mailbox->getNewsletter(1);
+				$newsletter = $mailbox->getMessage(1);
 				
 				unset($mailbox);
 				
@@ -61,7 +75,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 				$mailbox = new Common_Mailbox(
 						$formData['mailbox'], $formData['username'], $formData['password']);
 				
-				
+				//TODO
 			}
 		}
 	}
@@ -92,38 +106,80 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	
 	public function openMailboxAction()
 	{
-		$mailboxData = null;
-		
-		foreach($this->getLoggedInUser()->getMailboxes() as $searchMailbox)
-		{
-			if($searchMailbox->getMailbox() == urldecode($this->getRequest()->getParam('mailbox')))
-			{
-				$mailboxData = $searchMailbox;
-			}
-		}
-		
-		if($mailboxData === null)
-		{
-			$this->jsonError("mailbox not found");
-		}
-		
-		/* @var $mailboxData MailElephantModel_Mailbox */
-		$mailbox = new Common_Mailbox(
-				$mailboxData->getMailbox(),
-				$mailboxData->getUsername(),
-				$mailboxData->getPassword());
+		$mailbox = $this->getMailboxFromRequest();
 
-		$jsonHeaders = array();
+		$jsonHeaders = array('mailbox'=>$mailbox->getMailbox(), 'headers'=>array());
 		
 		$msgs = $mailbox->getNumMessages();
 		foreach($mailbox->getHeaders($msgs-50, $msgs) as $header)
 		{
-			$jsonHeaders[] = array(
+			$jsonHeaders['headers'][] = array(
+					'msgno' => $header->getMsgNo(),
 					'subject' => $header->getSubject(),
 					'date' => $header->getDate()->format('c'));
 		}
 		
 		$this->sendJSON($jsonHeaders);
+	}
+	
+	/**
+	 * @return Common_Mailbox
+	 */
+	private function getMailboxFromRequest()
+	{
+		$mailboxId = $this->getRequest()->getParam("mailbox", null);
+		
+		if(!$mailboxId)
+		{
+			throw new Common_Exception_BadRequest("no mailbox given");
+		}
+		
+		$mailboxData = null;
+		foreach($this->getLoggedInUser()->getMailboxes() as $searchMailbox)
+		{
+			if($searchMailbox->getMailbox() == $mailboxId)
+			{
+				$mailboxData = $searchMailbox;
+				break;
+			}
+		}
+		
+		if($mailboxData === null)
+		{
+			throw new Common_Exception_NotFound("mailbox not found");
+		}
+		
+		/* @var $mailboxData MailElephantModel_Mailbox */
+		return new Common_Mailbox(
+				$mailboxData->getMailbox(),
+				$mailboxData->getUsername(),
+				$mailboxData->getPassword());
+	}
+	
+	public function addMessageFromMailboxAction()
+	{
+		$this->disableView();
+		
+		$mailbox = $this->getMailboxFromRequest();
+		
+		$messageNo = $this->getRequest()->getParam('message', null);
+		if($messageNo === null)
+		{
+			throw new Common_Exception_BadRequest("no message no given");
+		}
+		
+		$message = $mailbox->getMessage($messageNo);
+		
+		if(!$message)
+		{
+			throw new Common_Exception_NotFound("message not found");
+		}
+		
+		$message->save($this->getStorageProvider(), $this->getDataPath());
+		
+		//TODO message
+		
+		$this->_getRedirector()->gotoSimpleAndExit('index');
 	}
 
 	public function viewAction()
@@ -139,6 +195,13 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 		$this->view->mode = $mode;
 		
 		$this->view->newsletter = $newsletter;
+	}
+	
+	public function getNewsletterHtmlAction()
+	{
+		$this->view->newsletter = $this->getNewsletterByRequest();
+		
+		$this->disableLayout();
 	}
 	
 	private function getNewsletterByRequest()

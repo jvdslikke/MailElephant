@@ -21,6 +21,10 @@
 					view</a>
 				<a href="<?php echo $this->url(array('action'=>"edit", 'newsletterid'=>$newsletter->getId())) ?>">
 					edit</a>
+				<form action="" method="post">
+					<input type="hidden" name="delete-newsletterid" value="<?php echo $newsletter->getId() ?>" />
+					<input type="submit" value="delete" />
+				</form>
 			</td>
 		</tr>
 	<?php

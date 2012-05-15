@@ -3,6 +3,7 @@
 class Common_Mailbox
 {
 	private $imapResource;
+	private $path;
 	
 	private static $attachmentPartTypes = array(
 			3 => "application",
@@ -19,7 +20,8 @@ class Common_Mailbox
 	);
 	
 	public function __construct($path, $username='', $password='')
-	{		
+	{
+		$this->path = $path;
 		$this->imapResource = @imap_open($path, $username, $password, OP_READONLY);
 		
 		if(!$this->imapResource)
@@ -32,6 +34,11 @@ class Common_Mailbox
 			
 			throw new Exception("opening the mailbox failed: ".$error);
 		}
+	}
+	
+	public function getMailbox()
+	{
+		return $this->path;
 	}
 	
 	public function getNumMessages()
@@ -61,9 +68,17 @@ class Common_Mailbox
 		return array_reverse($headers);
 	}
 	
-	public function getNewsletter($index)
+	/**
+	 * @return MailElephantModel_Newsletter Null if message not found
+	 */
+	public function getMessage($index)
 	{
 		$headerinfo = imap_headerinfo($this->imapResource, $index);
+		if(empty($headerinfo))
+		{
+			return null;
+		}		
+		
 		$overview = imap_fetch_overview($this->imapResource, $index);
 		$msgStructure = imap_fetchstructure($this->imapResource, $index);
 		$date = new DateTime($overview[0]->date);
@@ -111,7 +126,8 @@ class Common_Mailbox
 				&& $structure->ifsubtype
 				&& $structure->subtype == "HTML")
 		{			
-			return imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
+			return $this->decodeBodyPart($structure->encoding, 
+					imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path)));
 		}
 		
 		if(isset($structure->parts) && count($structure->parts) > 0)
@@ -129,6 +145,18 @@ class Common_Mailbox
 		}
 		
 		return null;
+	}
+	
+	private function decodeBodyPart($encodingTypeFlag, $body)
+	{
+		switch($encodingTypeFlag)
+		{
+			case 4:
+				return imap_qprint($body);
+			
+			default:
+				throw new Exception("encoding type ".$encodingTypeFlag." not supported");
+		}
 	}
 	
 	private function fetchAttachments($msgIndex, $structure, array $path)

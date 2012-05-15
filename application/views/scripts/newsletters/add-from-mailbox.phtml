@@ -2,16 +2,21 @@
 
 <?php $this->headScript()->appendFile("/script/mailboxes.js") ?>
 
-<ul id="Mailboxes">
+<div id="Mailboxes">
+	<ul>
 	<?php foreach($this->mailboxes as $mailbox): ?>
 		<li>
-			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>urlencode($mailbox->getMailbox()))) ?>">
+			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>$mailbox->getMailbox())) ?>">
 				<?php echo $mailbox->getMailbox() ?></a>
 		</li>
 	<?php endforeach; ?>
-</ul>
+	</ul>
+</div>
 
-<ul id="MailboxMessages"></ul>
+<div id="MailboxMessages">
+	<p class="loadingMessage">opening mailbox...</p>
+	<ul></ul>
+</div>
 
 <p>
 	<a href="<?php echo $this->url(array('action'=>"add-mailbox")) ?>">

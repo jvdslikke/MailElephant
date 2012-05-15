@@ -43,4 +43,9 @@ interface Common_Storage_Provider_Interface
 	 * @return mixed A value representing the datetime in the storage providers internal format
 	 */
 	public function createInternalDateValueFromDateTime(DateTime $dateTime);
+	
+	/**
+	 * @return int The number of records removed
+	 */
+	public function delete($scheme, $identifyingData);
 }

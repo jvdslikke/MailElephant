@@ -194,8 +194,32 @@ class MailElephantModel_Newsletter
 					'path' => $attachment->getPath());
 		}
 		
-		var_dump($storage->update('newsletters', 
+		$storage->update('newsletters', 
 				array('_id'=>$this->id), 
-				array('attachments'=>$attachments)));
+				array('attachments'=>$attachments));
+	}
+	
+	public function delete(Common_Storage_Provider_Interface $storage, $dataPath)
+	{
+		if($this->getNumAttachments() > 0)
+		{
+			$attachmentsDir = $dataPath."/attachments/".$this->id;
+			
+			foreach($this->attachments as $attachment)
+			{
+				$path = $attachmentsDir."/".$attachment->getName();
+				if(!@unlink($path))
+				{
+					throw new Exception("failed to delete attachment ".$attachment->getName());
+				}
+			}
+			
+			if(!@rmdir($attachmentsDir))
+			{
+				throw new Exception("failed to delete attachments directory");
+			}
+		}
+		
+		$storage->delete('newsletters', array('_id'=>$this->id));
 	}
 }

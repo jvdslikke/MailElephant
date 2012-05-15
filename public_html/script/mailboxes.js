@@ -6,6 +6,8 @@ $(document).ready(function()
 	{
 		event.preventDefault();
 		
+		$('#MailboxMessages').addClass("loading");
+		
 		$.get(this.href, {}, onMessagesGot);
 	});
 	
@@ -13,12 +15,19 @@ $(document).ready(function()
 
 function onMessagesGot(data, textStatus, jqXHR)
 {
-	var ul = $('#MailboxMessages');
+	$('#MailboxMessages').removeClass("loading");
+	var ul = $('#MailboxMessages ul');
 	
-	for(var i in data)
+	for(var i in data.headers)
 	{
 		var messageLi = document.createElement('li');
-		messageLi.appendChild(document.createTextNode(data[i].subject));
+		
+		messageLink = document.createElement('a');
+		messageLink.href = "/newsletters/add-message-from-mailbox/mailbox/"
+				+ encodeURIComponent(data.mailbox) +"/message/" + encodeURIComponent(data.headers[i].msgno);
+		messageLink.appendChild(document.createTextNode(data.headers[i].subject));
+		
+		messageLi.appendChild(messageLink);		
 		ul.append(messageLi);
 	}
 }

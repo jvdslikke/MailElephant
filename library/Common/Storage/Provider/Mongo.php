@@ -116,4 +116,15 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	{
 		return new MongoDate($dateTime->getTimestamp());
 	}
+	
+	
+	public function delete($scheme, $identifyingData)
+	{
+		$identifyingData = $this->handleIdentifyingData($identifyingData);
+		
+		$result = $this->_db->{$scheme}->remove($identifyingData,
+				array('safe'=>true));
+		
+		return $result['n'];
+	}
 }

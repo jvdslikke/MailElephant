@@ -10,9 +10,22 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 		return $this->getInvokeArg('bootstrap')->getResource('storage');
 	}
 	
+	/**
+	 * Return the configured data path without trailing slashes
+	 */
+	public function getDataPath()
+	{
+		return rtrim($this->getInvokeArg('bootstrap')->getOption('datapath'), '\\/');
+	}
+	
+	public function disableLayout()
+	{
+		$this->_helper->layout()->disableLayout();		
+	}
+	
 	public function disableView()
 	{
-		$this->_helper->layout()->disableLayout();
+		$this->disableLayout();
 		$this->_helper->viewRenderer->setNoRender(true);		
 	}
 	
@@ -26,7 +39,7 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 	
 	public function refresh()
 	{
-		$this->getRedirector()->gotoRouteAndExit();
+		$this->_getRedirector()->gotoRouteAndExit();
 	}
 	
 	public function sendJSON($jsonData)

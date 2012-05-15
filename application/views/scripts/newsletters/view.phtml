@@ -1,3 +1,8 @@
+<?php 
+	$this->headLink()->appendStylesheet("/style/view-newsletter.css");
+	$this->headScript()->appendFile("/script/view-newsletter.js");
+?>
+
 <div id="Toolbar">
 	<?php if($this->newsletter->hasPlainTextBody()): ?>
 		<a href="<?php echo $this->url(array('mode'=>"plaintext")) ?>" class="<?php if($this->mode == 'plaintext'): ?>selected<?php endif; ?>">
@@ -10,10 +15,8 @@
 	<?php endif; ?>
 </div>
 
-<?php
-	if($this->mode == 'html'):
-		echo $this->newsletter->getHtmlBody(true);
-	elseif($this->mode == 'plaintext'):
-		echo nl2br($this->newsletter->getPlainTextBody());
-	endif;
-?>
+<?php if($this->mode == 'html'): ?>
+	<iframe id="NewsletterHtmlFrame" class="heightToContent" scrolling="no" src="<?php echo $this->url(array('action'=>"get-newsletter-html", 'newsletterid'=>$this->newsletter->getId())); ?>"></iframe>
+<?php elseif($this->mode == 'plaintext'): ?>
+	<?php echo nl2br($this->newsletter->getPlainTextBody()); ?>
+<?php endif; ?>

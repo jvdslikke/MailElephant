@@ -64,3 +64,17 @@ table th {
 table thead td {
 	
 }
+
+table form {
+	display: inline;
+}
+
+/**** loading */
+
+.loadingMessage {
+	display: none;
+}
+
+.loading .loadingMessage {
+	display: block;
+}
