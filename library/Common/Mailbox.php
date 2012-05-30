@@ -81,6 +81,7 @@ class Common_Mailbox
 		
 		$overview = imap_fetch_overview($this->imapResource, $index);
 		$msgStructure = imap_fetchstructure($this->imapResource, $index);
+		
 		$date = new DateTime($overview[0]->date);
 		$subject = $headerinfo->subject;
 		
@@ -100,7 +101,20 @@ class Common_Mailbox
 				&& $structure->ifsubtype
 				&& $structure->subtype == "PLAIN")
 		{			
-			return imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
+			$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
+			
+			if($structure->ifparameters)
+			{
+				foreach($structure->parameters as $parameter)
+				{
+					if($parameter->attribute == "charset")
+					{
+						$body = $this->charsetDecodeBodyPart($parameter->value, $body);
+					}
+				}
+			}
+			
+			return $body;
 		}
 		
 		if(isset($structure->parts) && count($structure->parts) > 0)
@@ -125,9 +139,28 @@ class Common_Mailbox
 		if($structure->type === 0
 				&& $structure->ifsubtype
 				&& $structure->subtype == "HTML")
-		{			
-			return $this->decodeBodyPart($structure->encoding, 
-					imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path)));
+		{
+			if(empty($path))
+			{
+				$path[] = '1';
+			}
+			
+			$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
+			
+			$body = $this->decodeBodyPart($structure->encoding, $body);
+			
+			if($structure->ifparameters)
+			{
+				foreach($structure->parameters as $parameter)
+				{
+					if($parameter->attribute == "charset")
+					{
+						$body = $this->charsetDecodeBodyPart($parameter->value, $body);
+					}
+				}
+			}
+			
+			return $body;
 		}
 		
 		if(isset($structure->parts) && count($structure->parts) > 0)
@@ -159,6 +192,29 @@ class Common_Mailbox
 		}
 	}
 	
+	/**
+	 * @return utf-8 encoded string
+	 */
+	private function charsetDecodeBodyPart($charset, $body)
+	{
+		$charset = strtoupper($charset);
+		if($charset == "UTF-8")
+		{
+			return $body;
+		}
+		else
+		{
+			$body = iconv($charset, "UTF-8", $body);
+			
+			if($body === false)
+			{
+				throw new Exception("converting from charset ".$charset." failed");
+			}
+			
+			return $body;
+		}
+	}
+	
 	private function fetchAttachments($msgIndex, $structure, array $path)
 	{
 		$attachments = array();
@@ -169,7 +225,13 @@ class Common_Mailbox
 				&& isset(self::$attachmentEncodings[$structure->encoding])
 				&& $structure->ifsubtype
 				&& in_array(strtolower($structure->subtype), self::$attachmentPartSubTypes))
-		{
+		{			
+			$cid = null;
+			if($structure->ifid)
+			{
+				$cid = trim($structure->id, "<>");				
+			}
+			
 			$name = null;
 			foreach($structure->parameters as $parameter)
 			{
@@ -179,10 +241,11 @@ class Common_Mailbox
 				}
 			}
 			
-			$cid = null;
-			if($structure->ifid)
+			if(empty($name) && strpos($cid, '@') !== false)
 			{
-				$cid = trim($structure->id, "<>");				
+				$cidVars = explode('@', $cid);
+				
+				$name = $cidVars[0];
 			}
 			
 			if(!empty($name))
