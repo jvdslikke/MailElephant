@@ -92,12 +92,34 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	public function fetchMoreBy($scheme, $data)
 	{
 		$data = $this->handleIdentifyingData($data);
-		return iterator_to_array($this->_db->{$scheme}->find($data));		
+		return $this->createArrayFromResultCursor($this->_db->{$scheme}->find($data));		
 	}
 	
 	public function fetchAll($scheme)
 	{
-		return iterator_to_array($this->_db->{$scheme}->find());
+		return $this->createArrayFromResultCursor($this->_db->{$scheme}->find());
+	}
+	
+	private function createArrayFromResultCursor(MongoCursor $cursor)
+	{
+		$result = array();
+		
+		foreach($cursor as $doc)
+		{
+			$result[] = $this->createArrayFromResultDoc($doc);
+		}
+		
+		return $result;
+	}
+	
+	private function createArrayFromResultDoc($doc)
+	{
+		if(isset($doc['_id']) && $doc['_id'] instanceof MongoId)
+		{
+			$doc['_id'] = $doc['_id']->{'$id'};
+		}
+		
+		return $doc;
 	}
 	
 	public function exists($scheme, $identifyingData)

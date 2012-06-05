@@ -2,7 +2,7 @@
 
 include 'cli.inc.php';
 
-$storage = Newsletter_Storage_Provider_Factory::factor($config->resources->storage->toArray());
+$storage = Common_Storage_Provider_Factory::factor($config->resources->storage->toArray());
 
 if(!isset($argv[1]))
 {

@@ -10,6 +10,8 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 			$newsletter = MailElephantModel_Newsletter::fetchOneById(
 					$this->getStorageProvider(), $deleteNewsletterId);
 			
+			//TODO check if logged in user is the owner
+			
 			if($newsletter)
 			{
 				$newsletter->delete($this->getStorageProvider(), $this->getDataPath());
@@ -18,7 +20,9 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 			}
 		}
 		
-		$newsletters = MailElephantModel_Newsletter::fetchAll($this->getStorageProvider());
+		$newsletters = MailElephantModel_Newsletter::fetchMoreByUser(
+				$this->getStorageProvider(), 
+				Zend_Auth::getInstance()->getIdentity());
 		
 		$this->view->newsletters = $newsletters;
 	}
@@ -254,6 +258,8 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	
 	public function editAction()
 	{
+		//TODO lock while it's being sent
+		
 		$newsletter = $this->getNewsletterByRequest();
 		
 		$this->view->newsletter = $newsletter;

@@ -6,6 +6,8 @@ class MailElephantModel_User
 	private $passwordHash;
 	private $mailboxes = array();
 	
+	private static $cache = array();
+	
 	public function __construct($email, $passwordHash, array $mailboxes = array())
 	{
 		$this->email = $email;
@@ -52,23 +54,28 @@ class MailElephantModel_User
 	
 	public static function fetchOneByEmail(Common_Storage_Provider_Interface $db, $email)
 	{
-		$result = $db->fetchOneBy('users', array('email'=>$email));
-		
-		if($result === null)
+		if(!isset(self::$cache[$email]))
 		{
-			return null;
+			$result = $db->fetchOneBy('users', array('email'=>$email));
+			
+			if($result === null)
+			{
+				return null;
+			}
+			
+			$mailboxes = array();
+			foreach($result['mailboxes'] as $mailboxResult)
+			{
+				$mailboxes[] = new MailElephantModel_Mailbox(
+						$mailboxResult['mailbox'], 
+						$mailboxResult['username'], 
+						$mailboxResult['password']);
+			}
+			
+			self::$cache[$email] = new self($result['email'], $result['passwordHash'], $mailboxes);
 		}
 		
-		$mailboxes = array();
-		foreach($result['mailboxes'] as $mailboxResult)
-		{
-			$mailboxes[] = new MailElephantModel_Mailbox(
-					$mailboxResult['mailbox'], 
-					$mailboxResult['username'], 
-					$mailboxResult['password']);
-		}
-		
-		return new self($result['email'], $result['passwordHash'], $mailboxes);
+		return self::$cache[$email];
 	}
 	
 	public function save(Common_Storage_Provider_Interface $db)

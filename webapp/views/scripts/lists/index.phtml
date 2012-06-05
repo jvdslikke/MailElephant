@@ -1,0 +1,10 @@
+<h1>Lists</h1>
+
+<ul>
+	<?php foreach($this->lists as $list): ?>
+		<li>
+			<?php echo $list->getTitle() ?>
+			(<?php echo $list->getNumSubscribtions() ?> subscribtions)
+		</li>
+	<?php endforeach; ?>
+</ul>

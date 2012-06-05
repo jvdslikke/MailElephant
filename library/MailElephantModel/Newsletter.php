@@ -8,10 +8,11 @@ class MailElephantModel_Newsletter
 	private $plainTextBody;
 	private $htmlBody;
 	private $attachments;
-	private $headers;
+	private $user;
 	
 	public function __construct($id, $subject, DateTime $created, 
-			$plainTextBody, $htmlBody, array $attachments = array())
+			$plainTextBody, $htmlBody, array $attachments = array(),
+			MailElephantModel_User $user)
 	{
 		$this->id = $id;
 		$this->subject = $subject;
@@ -21,7 +22,7 @@ class MailElephantModel_Newsletter
 		
 		$this->setAttachments($attachments);
 		
-		$this->headers = array();
+		$this->user = $user;
 	}
 	
 	public function getId()
@@ -113,11 +114,12 @@ class MailElephantModel_Newsletter
 		return null;
 	}
 	
-	public static function fetchAll(Common_Storage_Provider_Interface $storage)
+	public static function fetchMoreByUser(Common_Storage_Provider_Interface $storage, 
+			MailElephantModel_User $user)
 	{
 		$newsletters = array();
 		
-		foreach($storage->fetchAll('newsletters') as $data)
+		foreach($storage->fetchMoreBy('newsletters', array('user'=>$user->getEmail())) as $data)
 		{
 			$newsletters[] = self::createNewsletterFromData($storage, $data);
 		}
@@ -137,7 +139,7 @@ class MailElephantModel_Newsletter
 		return self::createNewsletterFromData($storage, $result);
 	}
 	
-	private static function createNewsletterFromData(Common_Storage_Provider_Interface $storage, $data)
+	public static function createNewsletterFromData(Common_Storage_Provider_Interface $storage, $data)
 	{
 		$attachments = array();
 		
@@ -150,13 +152,16 @@ class MailElephantModel_Newsletter
 					$attachmentData['path']);
 		}
 		
+		$user = MailElephantModel_User::fetchOneByEmail($storage, $data['user']);
+		
 		return new self(
 				$data['_id'],
 				$data['subject'],
 				$storage->createDateTimeFromInternalDateValue($data['created']),
 				$data['plainTextBody'], 
 				$data['htmlBody'],
-				$attachments);
+				$attachments,
+				$user);
 	}
 	
 	public function save(Common_Storage_Provider_Interface $storage, $dataPath)
@@ -165,7 +170,7 @@ class MailElephantModel_Newsletter
 				'created' => $storage->createInternalDateValueFromDateTime($this->created),
 				'plainTextBody' => $this->plainTextBody,
 				'htmlBody' => $this->htmlBody,
-				'headers' => $this->headers);
+				'user' => $this->user->getEmail());
 		
 		if(empty($this->id))
 		{

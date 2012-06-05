@@ -24,7 +24,7 @@
 		<div id="Menu">
 			<ul>
 				<li>
-					<a href="/subscribtions">subscribtions</a>
+					<a href="/lists">lists</a>
 				</li>
 				<li>
 					<a href="/newsletters">newsletters</a>
@@ -50,11 +50,11 @@
 		<div id="Footer">
 			<?php if(Zend_Auth::getInstance()->hasIdentity()): ?>
 				Logged in as <?php echo Zend_Auth::getInstance()->getIdentity()->getEmail() ?>
+			
+				<a href="<?php echo $this->url(array('controller'=>"auth", 'action'=>"logout")) ?>">logout</a>
 			<?php else: ?>
 				Not logged in 
 			<?php endif; ?>
-			
-			<a href="<?php echo $this->url(array('controller'=>"auth", 'action'=>"logout")) ?>">logout</a>
 		</div>
 	</body>
 </html>
