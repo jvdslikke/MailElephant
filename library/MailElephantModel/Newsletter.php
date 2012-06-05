@@ -12,7 +12,7 @@ class MailElephantModel_Newsletter
 	
 	public function __construct($id, $subject, DateTime $created, 
 			$plainTextBody, $htmlBody, array $attachments = array(),
-			MailElephantModel_User $user)
+			MailElephantModel_User $user = null)
 	{
 		$this->id = $id;
 		$this->subject = $subject;
@@ -112,6 +112,11 @@ class MailElephantModel_Newsletter
 		}
 		
 		return null;
+	}
+	
+	public function setUser(MailElephantModel_User $user)
+	{
+		$this->user = $user;
 	}
 	
 	public static function fetchMoreByUser(Common_Storage_Provider_Interface $storage, 

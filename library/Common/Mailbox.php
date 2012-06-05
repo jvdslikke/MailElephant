@@ -56,7 +56,8 @@ class Common_Mailbox
 			$subject = null;
 			if(isset($imapHeader->subject))
 			{
-				$subject = $imapHeader->subject;
+				$subject = imap_mime_header_decode($imapHeader->subject);
+				$subject = $subject[0]->text;
 			}
 			
 			$headers[] = new Common_Mailbox_Message_Header(
@@ -83,12 +84,14 @@ class Common_Mailbox
 		$msgStructure = imap_fetchstructure($this->imapResource, $index);
 		
 		$date = new DateTime($overview[0]->date);
+		//TODO decoding
 		$subject = $headerinfo->subject;
 		
 		$plainTextBody = $this->fetchPlainTextBody($index, $msgStructure, array());
 		$htmlBody = $this->fetchHtmlBody($index, $msgStructure, array());
 		
-		$newsletter = new MailElephantModel_Newsletter(null, $subject, $date, $plainTextBody, $htmlBody);
+		//TODO this should return a Common_Mailbox_Message
+		$newsletter = new MailElephantModel_Newsletter(null, $subject, $date, $plainTextBody, $htmlBody, array(), null);
 		
 		$newsletter->setAttachments($this->fetchAttachments($index, $msgStructure, array()));
 		
@@ -102,6 +105,8 @@ class Common_Mailbox
 				&& $structure->subtype == "PLAIN")
 		{			
 			$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
+			
+			$body = $this->decodeBodyPart($structure->encoding, $body);
 			
 			if($structure->ifparameters)
 			{

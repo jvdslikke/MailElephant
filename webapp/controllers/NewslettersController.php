@@ -174,6 +174,8 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 		
 		$message = $mailbox->getMessage($messageNo);
 		
+		$message->setUser(Zend_Auth::getInstance()->getIdentity());
+		
 		if(!$message)
 		{
 			throw new Common_Exception_NotFound("message not found");
