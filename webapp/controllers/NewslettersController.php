@@ -172,20 +172,43 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 			throw new Common_Exception_BadRequest("no message no given");
 		}
 		
-		$message = $mailbox->getMessage($messageNo);
-		
-		$message->setUser(Zend_Auth::getInstance()->getIdentity());
-		
-		if(!$message)
+		$imapMessage = $mailbox->getMessage($messageNo);
+		if(!$imapMessage)
 		{
 			throw new Common_Exception_NotFound("message not found");
 		}
+		
+		// create newselephant message from imap message
+		$attachments = array();
+		foreach($imapMessage->getAttachments() as $imapAttachment)
+		{
+			/* @var $imapAttachment Common_Mailbox_Message_Attachment */
+			
+			$attachment = new MailElephantModel_NewsletterAttachment(
+					$imapAttachment->getMimeType(), 
+					$imapAttachment->getName(),
+					$imapAttachment->getCid(),
+					null);
+			
+			$attachment->setData($imapAttachment->getData());
+			
+			$attachments[] = $attachment;
+		}
+		
+		$message = new MailElephantModel_Newsletter(null, 
+				$imapMessage->getSubject(), 
+				$imapMessage->getDate(), 
+				$imapMessage->getPlainTextBody(), 
+				$imapMessage->getHtmlBody(),
+				$attachments,
+				Zend_Auth::getInstance()->getIdentity());
+		
 		
 		$message->save($this->getStorageProvider(), $this->getDataPath());
 		
 		//TODO message
 		
-		$this->_getRedirector()->gotoSimpleAndExit('index');
+		//$this->_getRedirector()->gotoSimpleAndExit('index');
 	}
 
 	public function viewAction()

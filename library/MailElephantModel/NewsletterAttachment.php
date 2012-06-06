@@ -6,7 +6,7 @@ class MailElephantModel_NewsletterAttachment extends Common_File
 	private $name;
 	private $cid;
 	
-	public function __construct($mimeType, $name, $cid = null, $path = null)
+	public function __construct($mimeType, $name, $cid, $path)
 	{
 		parent::__construct($path);
 		

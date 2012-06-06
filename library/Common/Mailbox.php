@@ -53,48 +53,58 @@ class Common_Mailbox
 		$headers = array();
 		foreach($imapHeaders as $imapHeader)
 		{
-			$subject = null;
-			if(isset($imapHeader->subject))
-			{
-				$subject = imap_mime_header_decode($imapHeader->subject);
-				$subject = $subject[0]->text;
-			}
 			
-			$headers[] = new Common_Mailbox_Message_Header(
-					$imapHeader->msgno, 
-					$subject, 
-					new DateTime($imapHeader->date));
+			$headers[] = $this->createMessageHeaderFromImapHeader($imapHeader);
 		}
 		
 		return array_reverse($headers);
 	}
 	
+	private function createMessageHeaderFromImapHeader($imapHeader)
+	{
+		$subject = null;
+		if(isset($imapHeader->subject))
+		{
+			$decodedSubject = imap_mime_header_decode($imapHeader->subject);
+			foreach($decodedSubject as $decodedSubjectPart)
+			{
+				$subject .= $decodedSubjectPart->text;
+			}
+		}
+		
+		return new Common_Mailbox_Message_Header(
+				$imapHeader->msgno, 
+				$subject,
+				new DateTime($imapHeader->date));
+	}
+	
 	/**
-	 * @return MailElephantModel_Newsletter Null if message not found
+	 * @return Common_Mailbox_Message Null if message not found
 	 */
 	public function getMessage($index)
 	{
-		$headerinfo = imap_headerinfo($this->imapResource, $index);
-		if(empty($headerinfo))
+		$imapHeaders = imap_fetch_overview($this->imapResource, $index);
+		if(empty($imapHeaders))
 		{
 			return null;
-		}		
+		}
 		
-		$overview = imap_fetch_overview($this->imapResource, $index);
+		$header = $this->createMessageHeaderFromImapHeader($imapHeaders[0]);
+		
 		$msgStructure = imap_fetchstructure($this->imapResource, $index);
-		
-		$date = new DateTime($overview[0]->date);
-		//TODO decoding
-		$subject = $headerinfo->subject;
-		
 		$plainTextBody = $this->fetchPlainTextBody($index, $msgStructure, array());
 		$htmlBody = $this->fetchHtmlBody($index, $msgStructure, array());
 		
-		//TODO this should return a Common_Mailbox_Message
-		$newsletter = new MailElephantModel_Newsletter(null, $subject, $date, $plainTextBody, $htmlBody, array(), null);
+		$attachments = $this->fetchAttachments($index, $msgStructure, array());
 		
-		$newsletter->setAttachments($this->fetchAttachments($index, $msgStructure, array()));
-		
+		$newsletter = new Common_Mailbox_Message(
+				$header->getMsgNo(), 
+				$header->getSubject(), 
+				$header->getDate(), 
+				$plainTextBody, 
+				$htmlBody,
+				$attachments);
+				
 		return $newsletter;
 	}
 	
@@ -227,7 +237,6 @@ class Common_Mailbox
 		// create attachment
 		if(isset(self::$attachmentPartTypes[$structure->type])
 				&& $structure->ifparameters
-				&& isset(self::$attachmentEncodings[$structure->encoding])
 				&& $structure->ifsubtype
 				&& in_array(strtolower($structure->subtype), self::$attachmentPartSubTypes))
 		{			
@@ -256,13 +265,17 @@ class Common_Mailbox
 			if(!empty($name))
 			{
 				$mimeType = self::$attachmentPartTypes[$structure->type].'/'.strtolower($structure->subtype);
-
-				$attachment = new MailElephantModel_NewsletterAttachment($mimeType, $name, $cid);
+				
+				$attachment = new Common_Mailbox_Message_Attachment($mimeType, $name, $cid, null);
 				
 				$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
 				if(self::$attachmentEncodings[$structure->encoding] == "base64")
 				{
 					$attachment->setData(base64_decode($body));
+				}
+				else
+				{
+					throw new Common_Exception_NotImplemented("attachment encoding not implemented");
 				}
 				
 				$attachments[] = $attachment;

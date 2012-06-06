@@ -6,7 +6,7 @@ class Common_Mailbox_Message_Header
 	private $subject;
 	private $date;
 	
-	public function __construct($msgno, $subject = null, DateTime $date)
+	public function __construct($msgno, $subject, DateTime $date)
 	{
 		$this->msgno = $msgno;
 		$this->subject = $subject;

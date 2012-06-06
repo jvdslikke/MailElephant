@@ -1,6 +1,6 @@
 <?php
 
-class Common_Exception_NotFound extends Common_Exception_Abstract
+class Common_Exception_NotFound extends Common_Exception_Http
 {
 	public function __construct($message = "Requested Resource Not Found")
 	{
