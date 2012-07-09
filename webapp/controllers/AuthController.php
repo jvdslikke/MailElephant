@@ -11,9 +11,16 @@ class AuthController extends MailElephantWeb_Controller_Action_Abstract
 					$this->getRequest()->getPost('email'), 
 					$this->getRequest()->getPost('password'));
 			
-			Zend_Auth::getInstance()->authenticate($authAdapter);
+			$result = Zend_Auth::getInstance()->authenticate($authAdapter);
 			
-			//TODO add message
+			if(!$result->isValid())
+			{
+				$this->addFlashMessage("Authentication failed");
+			}
+			else
+			{
+				$this->addFlashMessage("Succesfully logged in");
+			}
 			
 			$this->refresh();
 		}

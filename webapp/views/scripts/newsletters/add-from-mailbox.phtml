@@ -6,8 +6,11 @@
 	<ul>
 	<?php foreach($this->mailboxes as $mailbox): ?>
 		<li>
-			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>$mailbox->getMailbox())) ?>">
+			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>$mailbox->getMailbox())) ?>" class="mailboxOpener">
 				<?php echo $mailbox->getMailbox() ?></a>
+				
+			( <a href="<?php echo $this->url(array('action'=>"mailbox", 'mailbox'=>$mailbox->getMailbox())) ?>">
+				edit</a> )
 		</li>
 	<?php endforeach; ?>
 	</ul>
@@ -19,7 +22,7 @@
 </div>
 
 <p>
-	<a href="<?php echo $this->url(array('action'=>"add-mailbox")) ?>">
+	<a href="<?php echo $this->url(array('action'=>"mailbox")) ?>">
 		define a mailbox</a>
 </p>
 

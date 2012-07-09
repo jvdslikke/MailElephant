@@ -17,6 +17,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->addResource('subscribtions');
 		$acl->addResource('error');
 		$acl->addResource('lists');
+		$acl->addResource('index');
 		
 		// roles
 		$acl->addRole(self::GUEST_ROLE_ID);
@@ -28,6 +29,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'newsletters');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'subscribtions');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'lists');
+		$acl->allow(null, 'index');
 		
 		return $acl;
 	}
@@ -61,6 +63,12 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 					$this->getResponse()->setHttpResponseCode(401);
 					$request->setControllerName('auth');
 					$request->setActionName('login');
+					
+					/* @var $flashMessenger Zend_Controller_Action_Helper_FlashMessenger */
+					$flashMessenger = Zend_Controller_Action_HelperBroker::getStaticHelper('FlashMessenger');
+					$flashMessenger->addMessage("Please login to access this page");
+					
+					
 					$authorized = true;
 				}
 			}

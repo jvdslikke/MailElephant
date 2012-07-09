@@ -10,7 +10,7 @@ class MailElephantModel_Newsletter
 	private $attachments;
 	private $user;
 	
-	public function __construct($id, $subject, DateTime $created, 
+	public function __construct($id, $subject, DateTime $created=null, 
 			$plainTextBody, $htmlBody, array $attachments = array(),
 			MailElephantModel_User $user = null)
 	{
@@ -35,10 +35,15 @@ class MailElephantModel_Newsletter
 		return $this->subject;
 	}
 	
+	public function hasCreationDate()
+	{
+		return $this->created != null;
+	}
+	
 	/**
 	 * @return DateTime
 	 */
-	public function getCreated()
+	public function getCreationDate()
 	{
 		return $this->created;
 	}
@@ -159,10 +164,12 @@ class MailElephantModel_Newsletter
 		
 		$user = MailElephantModel_User::fetchOneByEmail($storage, $data['user']);
 		
+		$date = $data['created'] ? $storage->createDateTimeFromInternalDateValue($data['created']) : null;
+		
 		return new self(
 				$data['_id'],
 				$data['subject'],
-				$storage->createDateTimeFromInternalDateValue($data['created']),
+				$date,
 				$data['plainTextBody'], 
 				$data['htmlBody'],
 				$attachments,
@@ -172,10 +179,15 @@ class MailElephantModel_Newsletter
 	public function save(Common_Storage_Provider_Interface $storage, $dataPath)
 	{		
 		$data = array('subject' => $this->subject,
-				'created' => $storage->createInternalDateValueFromDateTime($this->created),
+				'created' => null,
 				'plainTextBody' => $this->plainTextBody,
 				'htmlBody' => $this->htmlBody,
 				'user' => $this->user->getEmail());
+		
+		if($this->hasCreationDate())
+		{
+			$data['created'] = $storage->createInternalDateValueFromDateTime($this->created);
+		}
 		
 		if(empty($this->id))
 		{

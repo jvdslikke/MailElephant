@@ -2,20 +2,21 @@
 $(document).ready(function()
 {
 
-	$('#Mailboxes a').click(function(event)
+	$('#Mailboxes a.mailboxOpener').click(function(event)
 	{
 		event.preventDefault();
 		
 		$('#MailboxMessages').addClass("loading");
 		
-		$.get(this.href, {}, onMessagesGot);
+		$.get(this.href, {}, onMessagesGot)
+			.error(function(){ alert("opening mailbox failed"); })
+			.complete(function() { $('#MailboxMessages').removeClass("loading"); });
 	});
 	
 });
 
 function onMessagesGot(data, textStatus, jqXHR)
 {
-	$('#MailboxMessages').removeClass("loading");
 	var ul = $('#MailboxMessages ul');
 	
 	for(var i in data.headers)

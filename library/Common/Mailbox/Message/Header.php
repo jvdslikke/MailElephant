@@ -6,7 +6,7 @@ class Common_Mailbox_Message_Header
 	private $subject;
 	private $date;
 	
-	public function __construct($msgno, $subject, DateTime $date)
+	public function __construct($msgno, $subject, DateTime $date=null)
 	{
 		$this->msgno = $msgno;
 		$this->subject = $subject;
@@ -26,6 +26,11 @@ class Common_Mailbox_Message_Header
 	public function setDate(DateTime $date)
 	{
 		$this->date = $date;
+	}
+	
+	public function hasDate()
+	{
+		return $this->date != null;
 	}
 	
 	public function getDate()

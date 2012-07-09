@@ -13,7 +13,7 @@
 			/* @var $newsletter Newsletter_Model_Newsletter */ 
 	?>
 		<tr>
-			<td><?php echo $newsletter->getCreated()->format('c') ?></td>
+			<td><?php echo $newsletter->hasCreationDate() ? $newsletter->getCreationDate()->format('c') : "?" ?></td>
 			<td><?php echo $newsletter->getSubject() ?></td>
 			<td><?php echo $newsletter->getNumAttachments() ?></td>
 			<td>

@@ -38,6 +38,14 @@
 		</div>
 		
 		<div id="Content">
+			<?php if(!empty($this->flashMessages)): ?>
+				<ul id="Messages">
+					<?php foreach($this->flashMessages as $message): ?>
+						<li><?php echo $message ?></li>
+					<?php endforeach; ?>
+				</ul>
+			<?php endif; ?>
+		
 	        <?php /* NESTED LAYOUT SUPPORT */ ?> 
 	        <?php if($this->layout()->nestedLayout): ?>  
 	            <?php $this->layout()->setLayout($this->layout()->nestedLayout); ?> 

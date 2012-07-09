@@ -21,17 +21,16 @@ class Common_Mailbox
 	
 	public function __construct($path, $username='', $password='')
 	{
-		$this->path = $path;
-		$this->imapResource = @imap_open($path, $username, $password, OP_READONLY);
-		
-		if(!$this->imapResource)
+		if(!function_exists('imap_open'))
 		{
-			$error = imap_last_error();
-			if(!$error)
-			{
-				$error = "unknown error";
-			}			
-			
+			throw new Exception("imap extension not installed");
+		}
+		
+		$this->path = $path;
+		$this->imapResource = imap_open($path, $username, $password, OP_READONLY);
+		
+		if(($error = imap_last_error()) !== false)
+		{			
 			throw new Exception("opening the mailbox failed: ".$error);
 		}
 	}
@@ -43,7 +42,14 @@ class Common_Mailbox
 	
 	public function getNumMessages()
 	{
-		return imap_num_msg($this->imapResource);
+		$num = imap_num_msg($this->imapResource);
+		
+		if(($err = imap_last_error()) !== false)
+		{
+			throw new Exception("retrieving message count failed: ".$err);
+		}
+		
+		return $num;
 	}
 	
 	public function getHeaders($from, $to)
@@ -52,8 +58,7 @@ class Common_Mailbox
 		
 		$headers = array();
 		foreach($imapHeaders as $imapHeader)
-		{
-			
+		{			
 			$headers[] = $this->createMessageHeaderFromImapHeader($imapHeader);
 		}
 		
@@ -61,7 +66,7 @@ class Common_Mailbox
 	}
 	
 	private function createMessageHeaderFromImapHeader($imapHeader)
-	{
+	{		
 		$subject = null;
 		if(isset($imapHeader->subject))
 		{
@@ -72,10 +77,16 @@ class Common_Mailbox
 			}
 		}
 		
+		$date = null;
+		if(isset($imapHeader->date))
+		{
+			$date = new DateTime($imapHeader->date);
+		}
+		
 		return new Common_Mailbox_Message_Header(
 				$imapHeader->msgno, 
 				$subject,
-				new DateTime($imapHeader->date));
+				$date);
 	}
 	
 	/**
@@ -199,6 +210,9 @@ class Common_Mailbox
 	{
 		switch($encodingTypeFlag)
 		{
+			case 0:
+				return $body;
+			
 			case 4:
 				return imap_qprint($body);
 			

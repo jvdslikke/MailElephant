@@ -9,6 +9,11 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	
 	public function __construct(array $options = array())
 	{
+		if(!class_exists('Mongo'))
+		{
+			throw new Exception("Mongo driver not installed");
+		}
+		
 		// check options
 		if(!isset($options['database']))
 		{

@@ -67,4 +67,34 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 		
 		return Zend_Auth::getInstance()->getIdentity();
 	}
+	
+	/**
+	 * @return Zend_Controller_Action_Helper_FlashMessenger
+	 */
+	private function getFlashMessenger()
+	{
+		return $this->_helper->getHelper('FlashMessenger');
+	}
+	
+	public function addFlashMessage($message)
+	{
+		$this->getFlashMessenger()->addMessage($message);
+	}
+	
+	public function postDispatch()
+	{
+		//TODO don't do on disabled view
+		if(!$this->getResponse()->isRedirect())
+		{
+			$messages = array();
+			
+			$messages = array_merge($messages, $this->getFlashMessenger()->getCurrentMessages());
+			$this->getFlashMessenger()->clearCurrentMessages();
+			
+			$messages = array_merge($messages, $this->getFlashMessenger()->getMessages());
+			
+			$messages = array_unique($messages);			
+			$this->view->flashMessages = $messages;
+		}
+	}
 }
