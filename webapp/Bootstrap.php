@@ -12,5 +12,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	{
 		date_default_timezone_set('UTC');
 	}
+	
+	protected function _initSwift()
+	{
+		require("Swift/swift_required.php");
+	}
 }
 

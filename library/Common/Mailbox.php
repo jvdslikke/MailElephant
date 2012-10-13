@@ -12,7 +12,8 @@ class Common_Mailbox
 	
 	private static $attachmentPartSubTypes = array(
 			"jpeg",
-			"pdf"
+			"pdf",
+			"png"
 	);
 	
 	private static $attachmentEncodings = array(
@@ -68,13 +69,9 @@ class Common_Mailbox
 	private function createMessageHeaderFromImapHeader($imapHeader)
 	{		
 		$subject = null;
-		if(isset($imapHeader->subject))
+		if(!empty($imapHeader->subject))
 		{
-			$decodedSubject = imap_mime_header_decode($imapHeader->subject);
-			foreach($decodedSubject as $decodedSubjectPart)
-			{
-				$subject .= $decodedSubjectPart->text;
-			}
+			$subject = trim($this->decodeImapHeader($imapHeader->subject), '"');
 		}
 		
 		$date = null;
@@ -83,10 +80,51 @@ class Common_Mailbox
 			$date = new DateTime($imapHeader->date);
 		}
 		
+		// get name and email
+		$fromEmail = null;
+		$fromName = null;
+		
+		$from = null;
+		if(!empty($imapHeader->from))
+		{
+			$from = $this->decodeImapHeader($imapHeader->from);
+		}
+		
+		if($from !== null)
+		{			
+			if(preg_match('/^(?P<name>.+?) <(?P<email>.+)>$/', $from, $fromMatches))
+			{
+				$fromEmail = $fromMatches['email'];
+				$fromName = trim($fromMatches['name'], '"');
+			}
+			else
+			{
+				$fromEmail = $from;
+			}
+		}
+		
 		return new Common_Mailbox_Message_Header(
 				$imapHeader->msgno, 
 				$subject,
-				$date);
+				$date,
+				$fromEmail,
+				$fromName);
+	}
+	
+	private function decodeImapHeader($imapHeader)
+	{
+		$result = null;
+		
+		$decodedSubject = imap_mime_header_decode($imapHeader);
+		foreach($decodedSubject as $decodedSubjectPart)
+		{
+			if(!empty($decodedSubjectPart))
+			{
+				$result .= $decodedSubjectPart->text;
+			}
+		}
+
+		return $result;
 	}
 	
 	/**
@@ -103,6 +141,7 @@ class Common_Mailbox
 		$header = $this->createMessageHeaderFromImapHeader($imapHeaders[0]);
 		
 		$msgStructure = imap_fetchstructure($this->imapResource, $index);
+		
 		$plainTextBody = $this->fetchPlainTextBody($index, $msgStructure, array());
 		$htmlBody = $this->fetchHtmlBody($index, $msgStructure, array());
 		
@@ -114,7 +153,9 @@ class Common_Mailbox
 				$header->getDate(), 
 				$plainTextBody, 
 				$htmlBody,
-				$attachments);
+				$attachments,
+				$header->getFromName(),
+				$header->getFromEmail());
 				
 		return $newsletter;
 	}
@@ -211,6 +252,7 @@ class Common_Mailbox
 		switch($encodingTypeFlag)
 		{
 			case 0:
+			case 1:
 				return $body;
 			
 			case 4:

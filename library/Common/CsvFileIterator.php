@@ -49,6 +49,13 @@ class Common_CsvFileIterator extends Common_File implements Iterator
 		return $result;
 	}
 	
+	public function getHeaders()
+	{
+		return $this->headers;
+	}
+	
+	/*** iterator interface */
+	
 	public function current()
 	{
 		return $this->iteratorCurrent;

@@ -1,0 +1,24 @@
+<p>
+	<a href="<?php echo $this->url(array('action'=>"import-subscribtions")) ?>">import subscribtions</a>
+</p>
+
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Emailaddress</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php 
+			foreach($this->subscribtions as $subscribtion):
+				/* @var $subscribtion MailElephantModel_Subscibtion */ 
+		?>
+			<tr>
+				<td><?php echo $subscribtion->getName() ?></td>
+				<td><?php echo $subscribtion->getEmail() ?></td>
+			</tr>
+		<?php endforeach; ?>		
+	</tbody>
+</table>
+

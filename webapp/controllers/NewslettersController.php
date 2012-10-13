@@ -125,11 +125,13 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 		$jsonHeaders = array('mailbox'=>$mailbox->getMailbox(), 'headers'=>array());
 		
 		$msgs = $mailbox->getNumMessages();
-		foreach($mailbox->getHeaders($msgs-50, $msgs) as $header)
+		foreach($mailbox->getHeaders($msgs-10, $msgs) as $header)
 		{
 			$jsonHeader = array(
 				'msgno' => $header->getMsgNo(),
-				'subject' => $header->getSubject());
+				'subject' => utf8_encode($header->getSubject()),
+				'fromEmail' => $header->getFromEmail(),
+				'fromName' => $header->getFromName());
 			
 			if($header->hasDate())
 			{
@@ -196,6 +198,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 		}
 		
 		$imapMessage = $mailbox->getMessage($messageNo);
+		
 		if(!$imapMessage)
 		{
 			throw new Common_Exception_NotFound("message not found");

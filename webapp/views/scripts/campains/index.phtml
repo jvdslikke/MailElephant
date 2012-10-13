@@ -1,0 +1,20 @@
+<table>
+	<thead>
+		<tr>
+			<th>date</th>
+			<th>newsletter subject</th>
+			<th>sent/total</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach($this->campains as $campain): ?>
+			<tr>
+				<td><?php echo $campain->getCreationDate()->format("j M Y H:i") ?>
+				<td><?php echo $campain->getNewsletterSubject() ?></td>
+				<td>
+					<?php echo $campain->getNumSentSendingItems() ?>/<?php echo $campain->getNumSendingItems() ?>
+				</td>
+			</tr>
+		<?php endforeach; ?>	
+	</tbody>
+</table>

@@ -10,7 +10,7 @@ class MailElephantModel_Campain
 	
 	public function __construct($id,
 			MailElephantModel_User $user,
-			MailElephantModel_Newsletter $newsletter,
+			MailElephantModel_IStaticNewsletter $newsletter,
 			DateTime $created,
 			array $sendingItems)
 	{
@@ -19,6 +19,36 @@ class MailElephantModel_Campain
 		$this->created = $created;
 		
 		$this->setSendingItems($sendingItems);
+	}
+	
+	public function getCreationDate()
+	{
+		return $this->created;
+	}
+	
+	public function getNewsletterSubject()
+	{
+		return $this->newsletter->getSubject();
+	}
+	
+	public function getNumSentSendingItems()
+	{
+		$result = 0;
+		
+		foreach($this->sendingItems as $sendingItem)
+		{
+			if($sendingItem->isSent())
+			{
+				$result += 1;
+			}
+		}
+		
+		return $result;
+	}
+	
+	public function getNumSendingItems()
+	{
+		return count($this->sendingItems);
 	}
 	
 	public function setSendingItems(array $sendingItems)
@@ -45,7 +75,7 @@ class MailElephantModel_Campain
 		{
 			$user = MailElephantModel_User::fetchOneByEmail($storage, $doc['user']);
 			
-			$newsletter = MailElephantModel_Newsletter::fetchOneById($storage, $doc['newsletter']);
+			$newsletter = unserialize($doc['newsletter']);
 			
 			$sendingItems = array();
 			foreach($doc['sendingItems'] as $sendingItemDoc)
@@ -67,7 +97,7 @@ class MailElephantModel_Campain
 	{
 		$data = array(
 				'user' => $this->user->getEmail(),
-				'newsletter' => $this->newsletter->getId(),
+				'newsletter' => serialize($this->newsletter),
 				'created' => $storage->createInternalDateValueFromDateTime($this->created),
 				'sendingItems' => array());
 		

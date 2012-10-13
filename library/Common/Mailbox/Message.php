@@ -7,9 +7,9 @@ class Common_Mailbox_Message extends Common_Mailbox_Message_Header
 	private $attachments = array();
 	
 	public function __construct($msgno, $subject, DateTime $date=null,
-			$plainTextBody, $htmlBody, array $attachments)
+			$plainTextBody, $htmlBody, array $attachments, $fromName=null, $fromEmail=null)
 	{
-		parent::__construct($msgno, $subject, $date);
+		parent::__construct($msgno, $subject, $date, $fromEmail, $fromName);
 		
 		$this->plainTextBody = $plainTextBody;
 		$this->htmlBody = $htmlBody;

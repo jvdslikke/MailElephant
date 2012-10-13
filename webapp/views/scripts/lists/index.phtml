@@ -3,8 +3,14 @@
 <ul>
 	<?php foreach($this->lists as $list): ?>
 		<li>
-			<?php echo $list->getTitle() ?>
+			<a href="<?php echo $this->url(array('action'=>"subscribtions",'list'=>$list->getId())) ?>">
+				<?php echo $list->getTitle() ?></a>
+				
 			(<?php echo $list->getNumSubscribtions() ?> subscribtions)
+			
+			<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'list'=>$list->getId())) ?>">
+				create campain
+			</a>
 		</li>
 	<?php endforeach; ?>
 </ul>

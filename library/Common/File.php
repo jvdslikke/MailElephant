@@ -59,6 +59,11 @@ class Common_File
 		return pathinfo($this->path, PATHINFO_DIRNAME);
 	}
 	
+	public function getExtension()
+	{
+		return pathinfo($this->path, PATHINFO_EXTENSION);
+	}
+	
 	protected function setFopenMode($mode)
 	{
 		$this->fopenMode = $mode;

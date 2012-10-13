@@ -20,4 +20,9 @@ class MailElephantModel_Subscribtion
 	{
 		return $this->email;
 	}
+	
+	public function setName($name)
+	{
+		$this->name = $name;
+	}
 }

@@ -25,7 +25,7 @@
 					<input type="hidden" name="delete-newsletterid" value="<?php echo $newsletter->getId() ?>" />
 					<input type="submit" value="delete" />
 				</form>
-				<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'newsletterid'=>$newsletter->getId())) ?>">
+				<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'newsletter'=>$newsletter->getId())) ?>">
 					create campain</a>
 			</td>
 		</tr>

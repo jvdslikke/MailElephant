@@ -1,7 +1,6 @@
 
 $(document).ready(function()
 {
-
 	$('#Mailboxes a.mailboxOpener').click(function(event)
 	{
 		event.preventDefault();
@@ -17,18 +16,37 @@ $(document).ready(function()
 
 function onMessagesGot(data, textStatus, jqXHR)
 {
-	var ul = $('#MailboxMessages ul');
+	var tbody = $('#MailboxMessages table tbody');
 	
 	for(var i in data.headers)
 	{
-		var messageLi = document.createElement('li');
+		var messageHref = "/newsletters/add-message-from-mailbox/mailbox/"
+			+ encodeURIComponent(data.mailbox) +"/message/" + encodeURIComponent(data.headers[i].msgno);
 		
-		messageLink = document.createElement('a');
-		messageLink.href = "/newsletters/add-message-from-mailbox/mailbox/"
-				+ encodeURIComponent(data.mailbox) +"/message/" + encodeURIComponent(data.headers[i].msgno);
-		messageLink.appendChild(document.createTextNode(data.headers[i].subject));
+		var messageTr = document.createElement('tr');
 		
-		messageLi.appendChild(messageLink);		
-		ul.append(messageLi);
+		var from = data.headers[i].fromName;
+		if(!from)
+		{
+			from = data.headers[i].fromEmail;
+		}
+		
+		var fromLink = document.createElement('a');
+		fromLink.href = messageHref;
+		fromLink.appendChild(document.createTextNode(from));
+		
+		var fromTd = document.createElement('td');
+		fromTd.appendChild(fromLink);
+		messageTr.appendChild(fromTd);
+		
+		var subjectLink = document.createElement('a');
+		subjectLink.href = messageHref;
+		subjectLink.appendChild(document.createTextNode(data.headers[i].subject));
+		
+		var subjectTd = document.createElement('td');
+		subjectTd.appendChild(subjectLink);
+		messageTr.appendChild(subjectTd);
+		
+		tbody.append(messageTr);
 	}
 }

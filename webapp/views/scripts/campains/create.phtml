@@ -1,0 +1,82 @@
+<form method="post">
+	<?php if($this->list === null): ?>
+		<p>Choose a list to send the newsletter to</p>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>title</th>
+					<th>subscribtions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach($this->lists as $list): ?>
+					<tr>
+						<td>
+							<input type="radio" name="list" value="<?php echo $list->getId() ?>" id="ListRadio_<?php echo $list->getId() ?>"<?php if($this->list !== null && $list->getId() == $this->list->getId()): ?> checked="checked"<?php endif; ?> />
+						</td>
+						<td>
+							<label for="ListRadio_<?php echo $list->getId() ?>">
+								<?php echo $list->getTitle() ?>
+							</label>
+						</td>
+						<td>
+							<label for="ListRadio_<?php echo $list->getId() ?>">
+								<?php echo $list->getNumSubscribtions() ?>
+							</label>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>			
+		</table>
+	<?php else: ?>
+		<p>
+			We will send to list <em><?php echo $this->list->getTitle() ?></em>.
+		</p>
+	<?php endif; ?>
+	
+	<?php if($this->newsletter === null): ?>
+		<p>Choose the newsletter to send</p>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>subject</th>
+					<th>date</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach($this->newsletters as $newsletter): ?>
+					<tr>
+						<td>
+							<input type="radio" name="newsletter" value="<?php echo $newsletter->getId() ?>" id="NewsletterRadio_<?php echo $newsletter->getId() ?>"<?php if($this->newsletter !== null && $newsletter->getId() == $this->newsletter->getId()): ?>checked="checked"<?php endif;?> />
+						</td>
+						<td>
+							<label for="NewsletterRadio_<?php echo $newsletter->getId() ?>">
+								<?php echo $newsletter->getSubject() ?>
+							</label>
+						</td>
+						<td>
+							<?php if($newsletter->hasCreationDate()): ?>
+								<label for="NewsletterRadio_<?php echo $newsletter->getId() ?>">
+									<?php echo $newsletter->getCreationDate()->format("j M Y"); ?>
+								</label>
+							<?php endif; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	<?php else: ?>
+		<p>
+			We will send newsletter <em><?php echo $this->newsletter->getSubject() ?></em>
+			<?php if($this->newsletter->hasCreationDate()): ?>
+				from <em><?php echo $this->newsletter->getCreationDate()->format("j M Y") ?></em>
+			<?php endif; ?>.
+		</p>
+	<?php endif;?>
+	
+	<p>
+		<input type="submit" value="Create Campain!" />
+	</p>
+</form>
