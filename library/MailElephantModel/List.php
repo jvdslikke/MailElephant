@@ -33,6 +33,11 @@ class MailElephantModel_List
 	
 	public function addSubscribtion(MailElephantModel_Subscribtion $subscribtion)
 	{
+		if($this->hasSubscribtion($subscribtion->getEmail()))
+		{
+			throw new Exception("A subscribtion with that emailaddress already exists");
+		}
+		
 		$this->subscribtions[] = $subscribtion;
 	}
 	

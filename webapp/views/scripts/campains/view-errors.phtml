@@ -1,0 +1,16 @@
+<table>
+	<thead>
+		<tr>
+			<th>email</th>
+			<th>error</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach($this->campain->getErrorSendingItems() as $item): ?>
+			<tr>
+				<td><?php echo $item->getRecipientEmail() ?></td>
+				<td><?php echo $item->getSendingErrorMessage() ?></td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>

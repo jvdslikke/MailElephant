@@ -13,11 +13,6 @@ class MailElephantModel_SwiftStaticNewsletter implements MailElephantModel_IStat
 	{
 		return $this->swiftMessage->getSubject();
 	}
-	
-	public function setRecipient($emailAddress, $name)
-	{
-		$this->swiftMessage->setTo($emailAddress, $name);
-	}
 
 	public static function createFromNewsletter(MailElephantModel_Newsletter $newsletter)
 	{
@@ -49,6 +44,21 @@ class MailElephantModel_SwiftStaticNewsletter implements MailElephantModel_IStat
 		return new self($swiftMessage);
 	}
 	
+	public function setRecipient($email, $name=null)
+	{
+		$this->swiftMessage->setTo($email, $name);
+	}
+	
+	public function setFrom(MailElephantModel_MailSenderDetails $senderSettings)
+	{
+		$this->swiftMessage->setFrom($senderSettings->getAddress(), $senderSettings->getName());
+		
+		if($senderSettings->getReplyTo())
+		{
+			$this->swiftMessage->setReplyTo($senderSettings->getReplyTo());
+		}
+	}
+	
 	public function serialize() 
 	{
 		return serialize($this->swiftMessage);
@@ -59,5 +69,10 @@ class MailElephantModel_SwiftStaticNewsletter implements MailElephantModel_IStat
 		$swiftMessage = unserialize($serialized);
 		
 		$this->__construct($swiftMessage);
-	}	
+	}
+	
+	public function getSwiftMessage()
+	{
+		return $this->swiftMessage;
+	}
 }

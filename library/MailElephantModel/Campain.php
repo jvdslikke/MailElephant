@@ -7,18 +7,31 @@ class MailElephantModel_Campain
 	private $newsletter;
 	private $created;
 	private $sendingItems = array();
+	private $paused;
 	
 	public function __construct($id,
 			MailElephantModel_User $user,
 			MailElephantModel_IStaticNewsletter $newsletter,
 			DateTime $created,
-			array $sendingItems)
+			array $sendingItems,
+			$paused)
 	{
+		$this->id = $id;
 		$this->user = $user;
 		$this->newsletter = $newsletter;
-		$this->created = $created;
-		
+		$this->created = $created;		
 		$this->setSendingItems($sendingItems);
+		$this->paused = $paused;
+	}
+	
+	public function getId()
+	{
+		return $this->id;
+	}
+	
+	public function getUser()
+	{
+		return $this->user;
 	}
 	
 	public function getCreationDate()
@@ -26,9 +39,44 @@ class MailElephantModel_Campain
 		return $this->created;
 	}
 	
+	public function getNewsletter()
+	{
+		return $this->newsletter;
+	}
+	
 	public function getNewsletterSubject()
 	{
 		return $this->newsletter->getSubject();
+	}
+	
+	public function getQueuedSendingItems()
+	{
+		$result = array();
+		
+		foreach($this->sendingItems as $sendingItem)
+		{
+			if($sendingItem->isQueued())
+			{
+				$result[] = $sendingItem;
+			}
+		}
+		
+		return $result;
+	}
+	
+	public function getErrorSendingItems()
+	{
+		$result = array();
+		
+		foreach($this->sendingItems as $sendingItem)
+		{
+			if($sendingItem->isError())
+			{
+				$result[] = $sendingItem;
+			}
+		}
+		
+		return $result;
 	}
 	
 	public function getNumSentSendingItems()
@@ -38,6 +86,21 @@ class MailElephantModel_Campain
 		foreach($this->sendingItems as $sendingItem)
 		{
 			if($sendingItem->isSent())
+			{
+				$result += 1;
+			}
+		}
+		
+		return $result;
+	}
+	
+	public function getNumErrorSendingItems()
+	{
+		$result = 0;
+		
+		foreach($this->sendingItems as $sendingItem)
+		{
+			if($sendingItem->isError())
 			{
 				$result += 1;
 			}
@@ -61,6 +124,22 @@ class MailElephantModel_Campain
 		}
 	}
 	
+	public function isPaused()
+	{
+		return $this->paused;
+	}
+	
+	public function isCompleted()
+	{
+		return ($this->getNumErrorSendingItems() + $this->getNumSentSendingItems())
+			>= $this->getNumSendingItems();
+	}
+	
+	public function setPaused($paused)
+	{
+		$this->paused = $paused;
+	}
+	
 	public function addSendingItem(MailElephantModel_CampainSendingItem $sendingItem)
 	{
 		$this->sendingItems[] = $sendingItem;
@@ -73,24 +152,59 @@ class MailElephantModel_Campain
 		
 		foreach($storage->fetchMoreBy('campains', array('user'=>$user->getEmail())) as $doc)
 		{
-			$user = MailElephantModel_User::fetchOneByEmail($storage, $doc['user']);
-			
-			$newsletter = unserialize($doc['newsletter']);
-			
-			$sendingItems = array();
-			foreach($doc['sendingItems'] as $sendingItemDoc)
-			{
-				$sendingItems[] = new MailElephantModel_CampainSendingItem(
-						$sendingItemDoc['recipientEmail'], 
-						$sendingItemDoc['recipientName'], 
-						$sendingItemDoc['sendingStatus']);
-			}
-			
-			$result[] = new self($doc['_id'], $user, $newsletter, 
-					$storage->createDateTimeFromInternalDateValue($doc['created']), $sendingItems);
+			$result[] = self::_createCampainFromStorageResultRow($storage, $doc);
 		}
 		
 		return $result;
+	}
+	
+	public static function fetchOneById(Common_Storage_Provider_Interface $storage, $id)
+	{
+		$row = $storage->fetchOneBy('campains', array('_id' => $id));
+		
+		if($row === null)
+		{
+			return null;
+		}
+		
+		return self::_createCampainFromStorageResultRow($storage, $row);
+	}
+	
+	public static function fetchOpenCampains(Common_Storage_Provider_Interface $storage)
+	{
+		$campains = array();
+		foreach($storage->fetchMoreBy('campains', array('paused'=>false)) as $row)
+		{
+			$campain = self::_createCampainFromStorageResultRow($storage, $row);
+			
+			if(!$campain->isCompleted())
+			{
+				$campains[] = $campain;
+			}
+		}
+		
+		return $campains;
+	}
+	
+	private static function _createCampainFromStorageResultRow(Common_Storage_Provider_Interface $storage, $doc)
+	{
+		$user = MailElephantModel_User::fetchOneByEmail($storage, $doc['user']);
+		
+		$newsletter = unserialize($doc['newsletter']);
+		
+		$sendingItems = array();
+		foreach($doc['sendingItems'] as $sendingItemDoc)
+		{
+			$sendingItems[] = new MailElephantModel_CampainSendingItem(
+					$sendingItemDoc['recipientEmail'], 
+					$sendingItemDoc['recipientName'], 
+					$sendingItemDoc['sendingStatus'],
+					$sendingItemDoc['sendingErrorMessage']);
+		}
+		
+		return new self($doc['_id'], $user, $newsletter, 
+				$storage->createDateTimeFromInternalDateValue($doc['created']), $sendingItems,
+				$doc['paused']);		
 	}
 	
 	public function save(Common_Storage_Provider_Interface $storage)
@@ -99,7 +213,8 @@ class MailElephantModel_Campain
 				'user' => $this->user->getEmail(),
 				'newsletter' => serialize($this->newsletter),
 				'created' => $storage->createInternalDateValueFromDateTime($this->created),
-				'sendingItems' => array());
+				'sendingItems' => array(),
+				'paused' => $this->paused);
 		
 		foreach($this->sendingItems as $sendingItem)
 		{
@@ -107,10 +222,11 @@ class MailElephantModel_Campain
 			$data['sendingItems'][] = array(
 					'recipientEmail' => $sendingItem->getRecipientEmail(),
 					'recipientName' => $sendingItem->getRecipientName(),
-					'sendingStatus' => $sendingItem->getSendingStatus());
+					'sendingStatus' => $sendingItem->getSendingStatus(),
+					'sendingErrorMessage' => $sendingItem->getSendingErrorMessage());
 		}
 		
-		if($id === null)
+		if($this->id === null)
 		{
 			$this->id = $storage->insert('campains', $data, '_id');
 		}

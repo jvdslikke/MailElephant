@@ -2,8 +2,6 @@
 
 include 'cli.inc.php';
 
-$storage = Common_Storage_Provider_Factory::factor($config->resources->storage->toArray());
-
 if(!isset($argv[1]))
 {
 	throw new Exception("no file given");

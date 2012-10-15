@@ -2,6 +2,9 @@
 
 class Common_File
 {
+	const ENCODING_UTF8 = 'UTF-8';
+	const ENCODING_PHP = 'ISO-8859-1';
+	
 	private $path;
 	private $fopenMode = 'r';
 	private $handle = null;
@@ -21,6 +24,13 @@ class Common_File
 		{
 			$this->fopenMode = $fopenMode;
 		}
+	}
+	
+	public static function getEncodings()
+	{
+		return array(
+				self::ENCODING_UTF8, 
+				self::ENCODING_PHP);
 	}
 	
 	public function hasPath()

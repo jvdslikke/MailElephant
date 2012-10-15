@@ -4,6 +4,40 @@ class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
 	{
+		// pause
+		$pauseCampainId = $this->getRequest()->getParam('pause');
+		if(!empty($pauseCampainId))
+		{
+			$campain = MailElephantModel_Campain::fetchOneById(
+					$this->getStorageProvider(),
+					$pauseCampainId);
+			
+			if($campain === null)
+			{
+				throw new Common_Exception_NotFound("campain not found");
+			}
+			
+			$campain->setPaused(true);
+			$campain->save($this->getStorageProvider());
+		}
+		
+		// unpause
+		$unpauseCampainId = $this->getRequest()->getParam('unpause');
+		if(!empty($unpauseCampainId))
+		{
+			$campain = MailElephantModel_Campain::fetchOneById(
+					$this->getStorageProvider(),
+					$unpauseCampainId);
+			
+			if($campain === null)
+			{
+				throw new Common_Exception_NotFound("campain not found");
+			}
+			
+			$campain->setPaused(false);
+			$campain->save($this->getStorageProvider());
+		}
+		
 		$this->view->campains = MailElephantModel_Campain::fetchMoreByUser(
 				$this->getStorageProvider(), 
 				$this->getLoggedInUser());
@@ -111,7 +145,8 @@ class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 				$this->getLoggedInUser(), 
 				MailElephantModel_SwiftStaticNewsletter::createFromNewsletter($newsletter), 
 				new DateTime(), 
-				array());
+				array(),
+				true);
 		
 		foreach($list->getSubscribtions() as $subscribtion)
 		{
@@ -123,5 +158,31 @@ class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 		}
 		
 		$campain->save($this->getStorageProvider());
+	}
+	
+	public function viewErrorsAction()
+	{
+		$this->view->campain = $this->_getCampainFromRequest();	
+		
+	}
+	
+	private function _getCampainFromRequest()
+	{
+		$campainId = $this->getRequest()->getParam('campain');
+		if(empty($campainId))
+		{
+			throw new Common_Exception_BadRequest("campain not specified");
+		}
+		
+		$campain = MailElephantModel_Campain::fetchOneById(
+				$this->getStorageProvider(), 
+				$campainId);
+		
+		if($campain === null)
+		{
+			throw new Common_Exception_NotFound("campain not found");
+		}
+		
+		return $campain;
 	}
 }

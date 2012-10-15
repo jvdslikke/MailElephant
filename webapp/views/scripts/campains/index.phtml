@@ -3,7 +3,9 @@
 		<tr>
 			<th>date</th>
 			<th>newsletter subject</th>
-			<th>sent/total</th>
+			<th>status</th>
+			<th>error/sent/total</th>
+			<th></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -12,9 +14,37 @@
 				<td><?php echo $campain->getCreationDate()->format("j M Y H:i") ?>
 				<td><?php echo $campain->getNewsletterSubject() ?></td>
 				<td>
-					<?php echo $campain->getNumSentSendingItems() ?>/<?php echo $campain->getNumSendingItems() ?>
+					<?php if($campain->isCompleted()): ?>
+						Completed
+					<?php elseif($campain->isPaused()): ?>
+						Paused
+					<?php else: ?>
+						Sending
+					<?php endif; ?>
+				</td>
+				<td>
+					<?php echo $campain->getNumErrorSendingItems() ?>
+					/ <?php echo $campain->getNumSentSendingItems() ?>
+					/ <?php echo $campain->getNumSendingItems() ?>
+				</td>
+				<td>
+					<?php if(!$campain->isCompleted()): ?>
+						<form method="post">
+							<?php if($campain->isPaused()): ?>
+								<input type="hidden" name="unpause" value="<?php echo $campain->getId() ?>" />
+								<input type="submit" value="Unpause" />
+							<?php else: ?>
+								<input type="hidden" name="pause" value="<?php echo $campain->getId() ?>" />
+								<input type="submit" value="Pause" />
+							<?php endif; ?>
+						</form>
+					<?php endif; ?>
+					
+					<?php if($campain->getNumErrorSendingItems() > 0): ?>
+						<a href="<?php echo $this->url(array('action'=>"view-errors", 'campain'=>$campain->getId())) ?>">view errors</a>
+					<?php endif; ?>
 				</td>
 			</tr>
-		<?php endforeach; ?>	
+		<?php endforeach; ?>
 	</tbody>
 </table>

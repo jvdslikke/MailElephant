@@ -5,15 +5,19 @@ class MailElephantModel_User
 	private $email;
 	private $passwordHash;
 	private $mailboxes = array();
+	private $emailFromSettings;
 	
 	private static $cache = array();
 	
-	public function __construct($email, $passwordHash, array $mailboxes = array())
+	public function __construct($email, $passwordHash, array $mailboxes,
+			MailElephantModel_MailSenderDetails $emailFromSettings)
 	{
 		$this->email = $email;
 		$this->passwordHash = $passwordHash;
 		
 		$this->setMailboxes($mailboxes);
+		
+		$this->emailFromSettings = $emailFromSettings;
 	}
 	
 	public function getEmail()
@@ -26,14 +30,19 @@ class MailElephantModel_User
 		return $this->passwordHash;
 	}
 	
-	public function setPasswordHash($passwordHash)
-	{
-		$this->passwordHash = $passwordHash;
-	}
-	
 	public function getMailboxes()
 	{
 		return $this->mailboxes;
+	}
+	
+	public function hasEmailFromSettings()
+	{
+		return $this->emailFromSettings !== null;
+	}
+	
+	public function getEmailFromSettings()
+	{
+		return $this->emailFromSettings;
 	}
 	
 	public function setMailboxes(array $mailboxes)
@@ -51,6 +60,20 @@ class MailElephantModel_User
 		$this->mailboxes[] = $mailbox;
 	}
 	
+	public function setPasswordHash($passwordHash)
+	{
+		$this->passwordHash = $passwordHash;
+	}
+	
+	public function setPasswordPlainText($plainTextPassword)
+	{
+		$this->passwordHash = Common_Bcrypt::hash($plainTextPassword);
+	}
+	
+	public function setEmailFromSettings(MailElephantModel_MailSenderDetails $fromSettings)
+	{
+		$this->emailFromSettings = $fromSettings;
+	}	
 	
 	public static function fetchOneByEmail(Common_Storage_Provider_Interface $db, $email)
 	{
@@ -72,7 +95,14 @@ class MailElephantModel_User
 						$mailboxResult['password']);
 			}
 			
-			self::$cache[$email] = new self($result['email'], $result['passwordHash'], $mailboxes);
+			self::$cache[$email] = new self(
+					$result['email'], 
+					$result['passwordHash'], 
+					$mailboxes,
+					new MailElephantModel_MailSenderDetails(
+							$result['emailFromAddress'],
+							$result['emailFromName'],
+							$result['emailFromReplyTo']));
 		}
 		
 		return self::$cache[$email];
@@ -92,6 +122,9 @@ class MailElephantModel_User
 		$db->upsert('users', 
 				array('email' => $this->email), 
 				array('passwordHash' => $this->passwordHash,
-						'mailboxes' => $mailboxes));
+						'mailboxes' => $mailboxes,
+						'emailFromAddress' => $this->emailFromSettings->getAddress(),
+						'emailFromName' => $this->emailFromSettings->getName(),
+						'emailFromReplyTo' => $this->emailFromSettings->getReplyTo()));
 	}
 }

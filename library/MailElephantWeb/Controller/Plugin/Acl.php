@@ -19,6 +19,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->addResource('lists');
 		$acl->addResource('index');
 		$acl->addResource('campains');
+		$acl->addResource('user');
 		
 		// roles
 		$acl->addRole(self::GUEST_ROLE_ID);
@@ -32,6 +33,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'lists');
 		$acl->allow(null, 'index');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'campains');
+		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'user');
 		
 		return $acl;
 	}

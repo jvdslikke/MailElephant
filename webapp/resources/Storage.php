@@ -2,6 +2,7 @@
 
 class Application_Resource_Storage extends Zend_Application_Resource_ResourceAbstract
 {
+	//TODO is used?
 	const DEFAULT_SERVER = "mongodb://localhost:27017";
 	
 	private $_provider;

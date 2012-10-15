@@ -10,6 +10,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	
 	protected function _initTimezone()
 	{
+		//TODO get from config?
 		date_default_timezone_set('UTC');
 	}
 	
