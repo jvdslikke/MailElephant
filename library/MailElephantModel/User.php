@@ -45,6 +45,21 @@ class MailElephantModel_User
 		return $this->emailFromSettings;
 	}
 	
+	public function getMailboxByName($mailboxName)
+	{
+		$result = null;
+		
+		foreach($this->mailboxes as $mailbox)
+		{
+			if($mailbox->getName() == $mailboxName)
+			{
+				$result = $mailbox;
+			}
+		}
+		
+		return $result;
+	}
+	
 	public function setMailboxes(array $mailboxes)
 	{
 		$this->mailboxes = array();
@@ -90,9 +105,13 @@ class MailElephantModel_User
 			foreach($result['mailboxes'] as $mailboxResult)
 			{
 				$mailboxes[] = new MailElephantModel_Mailbox(
-						$mailboxResult['mailbox'], 
+						$mailboxResult['name'],
+						$mailboxResult['host'],
+						$mailboxResult['port'],
 						$mailboxResult['username'], 
-						$mailboxResult['password']);
+						$mailboxResult['password'],
+						$mailboxResult['useSsl'],
+						$mailboxResult['novalidateCert']);
 			}
 			
 			self::$cache[$email] = new self(
@@ -113,10 +132,15 @@ class MailElephantModel_User
 		$mailboxes = array();
 		foreach($this->mailboxes as $mailbox)
 		{
+			/* @var $mailbox MailElephantModel_Mailbox */
 			$mailboxes[] = array(
-					'mailbox' => $mailbox->getMailbox(),
+					'name' => $mailbox->getName(),
+					'host' => $mailbox->getHost(),
+					'port' => $mailbox->getPort(),
 					'username' => $mailbox->getUsername(),
-					'password' => $mailbox->getPassword());
+					'password' => $mailbox->getPassword(),
+					'useSsl' => $mailbox->getUseSsl(),
+					'novalidateCert' => $mailbox->getNovalidateCert());
 		}
 		
 		$db->upsert('users', 

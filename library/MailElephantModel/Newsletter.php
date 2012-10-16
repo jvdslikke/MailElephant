@@ -73,7 +73,7 @@ class MailElephantModel_Newsletter
 			$replacement = "'src=\"/newsletters/download-attachment/newsletterid/"
 					.urlencode($this->id)
 					."/attachmentcid/'.urlencode(\"$1\").'\"'";
-			$htmlBody = preg_replace('/src="cid:(.*?)"/e', $replacement, $htmlBody);
+			$htmlBody = preg_replace('/src="cid:(.*?)"/ei', $replacement, $htmlBody);
 		}
 		
 		return $htmlBody;
@@ -164,12 +164,10 @@ class MailElephantModel_Newsletter
 		
 		$user = MailElephantModel_User::fetchOneByEmail($storage, $data['user']);
 		
-		$date = $data['created'] ? $storage->createDateTimeFromInternalDateValue($data['created']) : null;
-		
 		return new self(
 				$data['_id'],
 				$data['subject'],
-				$date,
+				$data['created'],
 				$data['plainTextBody'], 
 				$data['htmlBody'],
 				$attachments,
@@ -186,7 +184,7 @@ class MailElephantModel_Newsletter
 		
 		if($this->hasCreationDate())
 		{
-			$data['created'] = $storage->createInternalDateValueFromDateTime($this->created);
+			$data['created'] = $this->created;
 		}
 		
 		if(empty($this->id))

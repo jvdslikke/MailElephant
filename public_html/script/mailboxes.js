@@ -5,6 +5,7 @@ $(document).ready(function()
 	{
 		event.preventDefault();
 		
+		$('#MailboxMessages table tbody').empty();
 		$('#MailboxMessages').addClass("loading");
 		
 		$.get(this.href, {}, onMessagesGot)

@@ -32,7 +32,9 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	}
 	
 	public function insert($scheme, $data, $identifyingDataSpecifiers = null)
-	{		
+	{
+		$data = $this->handleData($data);
+		
 		$this->_db->{$scheme}->insert($data,
 				array('safe'=>true));
 		
@@ -59,11 +61,25 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	}
 	
 	public function upsert($scheme, $identifyingData, $data)
-	{		
+	{
+		$data = $this->handleData($data);
+		
 		$result = $this->_db->{$scheme}->update(
 				$this->handleIdentifyingData($identifyingData),
 				array('$set' => $data),
 				array('upsert'=>true, 'multiple'=>true, 'safe'=>true));
+		
+		return $result['n'];
+	}
+	
+	public function update($scheme, $identifyingData, $data)
+	{		
+		$data = $this->handleData($data);
+		
+		$result = $this->_db->{$scheme}->update(
+				$this->handleIdentifyingData($identifyingData),
+				array('$set'=>$data),
+				array('multiple'=>true, 'safe'=>true));
 		
 		return $result['n'];
 	}
@@ -78,20 +94,40 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 		return $identifyingData;
 	}
 	
-	public function update($scheme, $identifyingData, $data)
-	{		
-		$result = $this->_db->{$scheme}->update(
-				$this->handleIdentifyingData($identifyingData),
-				array('$set'=>$data),
-				array('multiple'=>true, 'safe'=>true));
+	private function handleData($data)
+	{
+		$result = array();
 		
-		return $result['n'];
+		foreach($data as $var=>$value)
+		{
+			if(is_array($value))
+			{
+				$value = $this->handleData($value);
+			}
+			elseif($value instanceof DateTime)
+			{	
+				$secs = $value->format('U');
+				
+				// add timezone to date
+				if($value->getOffset())
+				{
+					$secs += $value->getOffset();
+				}
+				
+				$value = new MongoDate($secs);
+			}
+			
+			$result[$var] = $value;
+		}
+		
+		return $result;
 	}
 	
 	public function fetchOneBy($scheme, $identifyingData)
 	{
 		$identifyingData = $this->handleIdentifyingData($identifyingData);
-		return $this->_db->{$scheme}->findOne($identifyingData);
+		return $this->createArrayFromResultDoc(
+				$this->_db->{$scheme}->findOne($identifyingData));
 	}
 	
 	public function fetchMoreBy($scheme, $data)
@@ -119,12 +155,23 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	
 	private function createArrayFromResultDoc($doc)
 	{
-		if(isset($doc['_id']) && $doc['_id'] instanceof MongoId)
+		$result = array();
+		
+		foreach($doc as $var=>$value)
 		{
-			$doc['_id'] = $doc['_id']->{'$id'};
+			if($value instanceof MongoId)
+			{
+				$value = $value->{'$id'};
+			}
+			elseif($value instanceof MongoDate)
+			{
+				$value = DateTime::createFromFormat('U', $value->sec);
+			}
+			
+			$result[$var] = $value;
 		}
 		
-		return $doc;
+		return $result;
 	}
 	
 	public function exists($scheme, $identifyingData)
@@ -132,18 +179,6 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 		$identifyingData = $this->handleIdentifyingData($identifyingData);
 		return $this->fetchOneBy($scheme, $identifyingData) !== null;
 	}
-	
-	public function createDateTimeFromInternalDateValue($dateValue)
-	{
-		return DateTime::createFromFormat('U', $dateValue->sec);
-	}
-	
-
-	public function createInternalDateValueFromDateTime(DateTime $dateTime)
-	{
-		return new MongoDate($dateTime->getTimestamp());
-	}
-	
 	
 	public function delete($scheme, $identifyingData)
 	{

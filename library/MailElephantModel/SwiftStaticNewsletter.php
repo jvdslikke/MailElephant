@@ -39,7 +39,28 @@ class MailElephantModel_SwiftStaticNewsletter implements MailElephantModel_IStat
 			throw new Exception("no body in newsletter");
 		}
 		
-		//TODO attachments
+		// attachments
+		foreach($newsletter->getAttachments() as $attachment)
+		{
+			/* @var $attachment MailElephantModel_NewsletterAttachment */
+			
+			$swiftAttachment = Swift_Attachment::newInstance(
+					$attachment->getFileContents(),
+					null,
+					$attachment->getMimeType());
+			
+			$swiftAttachment->setId($attachment->getCid());
+			
+			if($attachment->isEmbedded())
+			{
+				$swiftAttachment->setDisposition('inline');
+			}
+			
+			$swiftAttachment->setFilename($attachment->getBasename());				
+			
+			$swiftMessage->attach($swiftAttachment);
+		}
+		
 		
 		return new self($swiftMessage);
 	}

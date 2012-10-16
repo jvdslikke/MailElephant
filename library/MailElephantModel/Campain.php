@@ -135,6 +135,11 @@ class MailElephantModel_Campain
 			>= $this->getNumSendingItems();
 	}
 	
+	public function isStarted()
+	{
+		return ($this->getNumErrorSendingItems() + $this->getNumSentSendingItems()) > 0;
+	}
+	
 	public function setPaused($paused)
 	{
 		$this->paused = $paused;
@@ -190,7 +195,7 @@ class MailElephantModel_Campain
 	{
 		$user = MailElephantModel_User::fetchOneByEmail($storage, $doc['user']);
 		
-		$newsletter = unserialize($doc['newsletter']);
+		$newsletter = unserialize(utf8_decode($doc['newsletter']));
 		
 		$sendingItems = array();
 		foreach($doc['sendingItems'] as $sendingItemDoc)
@@ -203,7 +208,7 @@ class MailElephantModel_Campain
 		}
 		
 		return new self($doc['_id'], $user, $newsletter, 
-				$storage->createDateTimeFromInternalDateValue($doc['created']), $sendingItems,
+				$doc['created'], $sendingItems,
 				$doc['paused']);		
 	}
 	
@@ -211,8 +216,8 @@ class MailElephantModel_Campain
 	{
 		$data = array(
 				'user' => $this->user->getEmail(),
-				'newsletter' => serialize($this->newsletter),
-				'created' => $storage->createInternalDateValueFromDateTime($this->created),
+				'newsletter' => utf8_encode(serialize($this->newsletter)),
+				'created' => $this->created,
 				'sendingItems' => array(),
 				'paused' => $this->paused);
 		

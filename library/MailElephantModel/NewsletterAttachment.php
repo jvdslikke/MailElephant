@@ -29,4 +29,14 @@ class MailElephantModel_NewsletterAttachment extends Common_File
 	{
 		return $this->cid;
 	}
+	
+	public function isEmbedded()
+	{
+		if($this->cid)
+		{
+			return true;
+		}
+		
+		return false;
+	}
 }

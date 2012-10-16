@@ -94,6 +94,11 @@ class Common_File
 		return $this->handle;
 	}
 	
+	public function getFileContents()
+	{
+		return file_get_contents($this->path);
+	}
+	
 	public function setData($data)
 	{
 		$this->dataToSave = $data;

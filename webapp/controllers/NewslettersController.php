@@ -71,15 +71,20 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	}
 	
 	public function mailboxAction()
-	{
-		$form = new MailElephantWeb_Form_Mailbox();
-		$this->view->form = $form;
-		
+	{		
 		$editMailbox = null;
 		if($this->getRequest()->getParam('mailbox') != null)
 		{
 			$editMailbox = $this->getMailboxFromRequest();
 		}
+		
+		$editMailboxName = null;
+		if($editMailbox)
+		{
+			$editMailboxName = $editMailbox->getName();
+		}
+		$form = new MailElephantWeb_Form_Mailbox($this->getLoggedInUser(), $editMailboxName);
+		$this->view->form = $form;
 		
 		if($this->getRequest()->isPost())
 		{
@@ -93,7 +98,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 					$mailboxes = array();
 					foreach($this->getLoggedInUser()->getMailboxes() as $mailbox)
 					{
-						if($mailbox->getMailbox() != $editMailbox->getMailbox())
+						if($mailbox->getName() != $editMailbox->getName())
 						{
 							$mailboxes[] = $mailbox;
 						}
@@ -101,10 +106,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 					$this->getLoggedInUser()->setMailboxes($mailboxes);
 				}
 				
-				$mailbox = new MailElephantModel_Mailbox(
-						$form->getMailboxInput()->getValue(), 
-						$form->getUsernameInput()->getValue(), 
-						$form->getPasswordInput()->getValue());
+				$mailbox = $form->getMailboxData();
 				
 				$this->getLoggedInUser()->addMailbox($mailbox);
 				$this->getLoggedInUser()->save($this->getStorageProvider());
@@ -112,7 +114,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 				$this->_getRedirector()->gotoSimpleAndExit('add-from-mailbox');
 			}
 		}
-		else
+		elseif($editMailbox !== null)
 		{
 			$form->setMailbox($editMailbox);
 		}	
@@ -120,12 +122,13 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	
 	public function openMailboxAction()
 	{
-		$mailbox = $this->openMailbox($this->getMailboxFromRequest());
+		$mailboxData = $this->getMailboxFromRequest();
+		$mailbox = $this->openMailbox($mailboxData);
 
-		$jsonHeaders = array('mailbox'=>$mailbox->getMailbox(), 'headers'=>array());
+		$jsonHeaders = array('mailbox'=>$mailboxData->getName(), 'headers'=>array());
 		
 		$msgs = $mailbox->getNumMessages();
-		foreach($mailbox->getHeaders($msgs-10, $msgs) as $header)
+		foreach($mailbox->getHeaders($msgs-30, $msgs) as $header)
 		{
 			$jsonHeader = array(
 				'msgno' => $header->getMsgNo(),
@@ -150,7 +153,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	private function openMailbox(MailElephantModel_Mailbox $mailboxData)
 	{
 		return new Common_Mailbox(
-				$mailboxData->getMailbox(),
+				$mailboxData->getMailboxConnectionString(),
 				$mailboxData->getUsername(),
 				$mailboxData->getPassword());		
 	}
@@ -170,7 +173,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 		$mailboxData = null;
 		foreach($this->getLoggedInUser()->getMailboxes() as $searchMailbox)
 		{
-			if($searchMailbox->getMailbox() == $mailboxId)
+			if($searchMailbox->getName() == $mailboxId)
 			{
 				$mailboxData = $searchMailbox;
 				break;

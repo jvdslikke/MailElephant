@@ -11,7 +11,9 @@
 	<tbody>
 		<?php foreach($this->campains as $campain): ?>
 			<tr>
-				<td><?php echo $campain->getCreationDate()->format("j M Y H:i") ?>
+				<td>
+					<?php echo $campain->getCreationDate()->format("j M Y H:i") ?>				
+				</td>
 				<td><?php echo $campain->getNewsletterSubject() ?></td>
 				<td>
 					<?php if($campain->isCompleted()): ?>

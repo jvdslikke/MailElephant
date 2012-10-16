@@ -11,6 +11,14 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 	}
 	
 	/**
+	 * @return DateTimeZone The current timezone
+	 */
+	public function getCurrentTimezone()
+	{
+		return new DateTimeZone(date_default_timezone_get());
+	}
+	
+	/**
 	 * Return the configured data path without trailing slashes
 	 */
 	public function getDataPath()

@@ -305,7 +305,7 @@ class Common_Mailbox
 			$name = null;
 			foreach($structure->parameters as $parameter)
 			{
-				if($parameter->attribute == "NAME")
+				if($parameter->attribute == "NAME" || $parameter->attribute == "name")
 				{
 					$name = $parameter->value;
 				}

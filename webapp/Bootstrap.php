@@ -10,8 +10,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	
 	protected function _initTimezone()
 	{
-		//TODO get from config?
-		date_default_timezone_set('UTC');
+		if(!date_default_timezone_set($this->getOption('timezone')))
+		{
+			throw new Exception("setting timezone failed, check config");
+		}
 	}
 	
 	protected function _initSwift()
