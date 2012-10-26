@@ -4,6 +4,21 @@ class ListsController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
 	{
+		if($this->getRequest()->isPost())
+		{
+			$delete = $this->getRequest()->getPost('delete');
+			if($delete)
+			{
+				$list = MailElephantModel_List::fetchOneById(
+						$this->getStorageProvider(), 
+						$delete);
+				
+				$list->delete($this->getStorageProvider());
+				
+				$this->addFlashMessage("List deleted succesfully");
+			}
+		}
+		
 		$lists = MailElephantModel_List::fetchMoreByUser(
 				$this->getStorageProvider(), 
 				$this->getLoggedInUser());
@@ -35,9 +50,22 @@ class ListsController extends MailElephantWeb_Controller_Action_Abstract
 	}
 	
 	public function subscribtionsAction()
-	{
-		$list = $this->_getListFromRequest();
+	{		
+		if($this->getRequest()->isPost())
+		{
+			$delete = $this->getRequest()->getPost('delete-subscribtion');
+			if($delete)
+			{
+				$list = $this->_getListFromRequest();
+				$list->deleteSubscribtionByEmail($delete);
+				$list->save($this->getStorageProvider());
+
+				$this->addFlashMessage("Subscribtion deleted succesfully");
+			}
+		}
 		
+		
+		$list = $this->_getListFromRequest();
 		$this->view->subscribtions = $list->getSubscribtions();
 	}
 	

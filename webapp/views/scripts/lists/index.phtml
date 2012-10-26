@@ -1,16 +1,38 @@
-<h1>Lists</h1>
-
-<ul>
-	<?php foreach($this->lists as $list): ?>
-		<li>
-			<a href="<?php echo $this->url(array('action'=>"subscribtions",'list'=>$list->getId())) ?>">
-				<?php echo $list->getTitle() ?></a>
-				
-			(<?php echo $list->getNumSubscribtions() ?> subscribtions)
-			
-			<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'list'=>$list->getId())) ?>">
-				create campain
-			</a>
-		</li>
-	<?php endforeach; ?>
+<ul class="tasks">
+	<li>
+		<a href="<?php echo $this->url(array('action'=>"create")) ?>">create new list</a>
+	</li>
 </ul>
+
+
+<table>
+	<thead>
+		<tr>
+			<th>title</th>
+			<th>subscribers</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach($this->lists as $list): ?>
+			<tr>
+				<td>
+					<a href="<?php echo $this->url(array('action'=>"subscribtions",'list'=>$list->getId())) ?>">
+						<?php echo $list->getTitle() ?>
+					</a>
+				</td>
+				<td>
+					<?php echo $list->getNumSubscribtions() ?>
+				</td>
+				<td>
+					<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'list'=>$list->getId())) ?>">
+						create campain</a>
+					<form method="post">
+						<input type="hidden" name="delete" value="<?php echo $list->getId() ?>" />
+						<input type="submit" value="delete" />
+					</form>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>

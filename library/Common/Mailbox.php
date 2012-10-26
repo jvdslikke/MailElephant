@@ -215,17 +215,52 @@ class Common_Mailbox
 			$body = imap_fetchbody($this->imapResource, $msgIndex, implode('.', $path));
 			
 			$body = $this->decodeBodyPart($structure->encoding, $body);
-			
+
+			$charset = null;
 			if($structure->ifparameters)
 			{
 				foreach($structure->parameters as $parameter)
 				{
 					if($parameter->attribute == "charset")
 					{
-						$body = $this->charsetDecodeBodyPart($parameter->value, $body);
+						$charset = $parameter->value;
 					}
 				}
 			}
+			
+			// get as clean HTML
+			$doc = new DOMDocument();
+			if($charset)
+			{
+				$doc->encoding = $charset;
+			}
+			$doc->loadHTML($body);
+			
+			// set encoding to utf8
+			$encodingQuery = new DOMXPath($doc);
+			$result = $encodingQuery->query('/html/head/meta[@http-equiv="Content-Type"]');
+			if($result->length > 0)
+			{
+				foreach($result as $domNode)
+				{
+					foreach($domNode->attributes as $attr)
+					{
+						if($attr->nodeName == "content")
+						{	
+							$newValue = "charset=utf-8"; 
+							
+							$attr->nodeValue = preg_replace("/charset=(.*)[;$]?/i", $newValue, $attr->nodeValue);
+						}
+					}
+				}
+			}
+			
+			// save body as html
+			$body = $doc->saveHTML();
+			
+			// encode from actual encoding to utf8
+			// this doesn't seem to be needed
+			//$body = $this->charsetDecodeBodyPart($charset, $body);
 			
 			return $body;
 		}
@@ -254,6 +289,9 @@ class Common_Mailbox
 			case 0:
 			case 1:
 				return $body;
+				
+			case 3:
+				return imap_base64($body);
 			
 			case 4:
 				return imap_qprint($body);

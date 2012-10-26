@@ -6,11 +6,14 @@ class MailElephantModel_User
 	private $passwordHash;
 	private $mailboxes = array();
 	private $emailFromSettings;
+	private $unsubscribeHtml;
+	private $unsubscribeText;
 	
 	private static $cache = array();
 	
 	public function __construct($email, $passwordHash, array $mailboxes,
-			MailElephantModel_MailSenderDetails $emailFromSettings)
+			MailElephantModel_MailSenderDetails $emailFromSettings,
+			$unsubscribeHtml, $unsubscribeText)
 	{
 		$this->email = $email;
 		$this->passwordHash = $passwordHash;
@@ -18,6 +21,9 @@ class MailElephantModel_User
 		$this->setMailboxes($mailboxes);
 		
 		$this->emailFromSettings = $emailFromSettings;
+		
+		$this->unsubscribeHtml = $unsubscribeHtml;
+		$this->unsubscribeText = $unsubscribeText;
 	}
 	
 	public function getEmail()
@@ -60,6 +66,31 @@ class MailElephantModel_User
 		return $result;
 	}
 	
+	public function getUnsubscribeHtml()
+	{
+		return $this->unsubscribeHtml;
+	}
+	
+	public function getUnsubscribeText()
+	{
+		return $this->unsubscribeText;
+	}
+	
+	public function deleteMailbox($mailboxName)
+	{
+		$result = array();
+		
+		foreach($this->mailboxes as $mailbox)
+		{
+			if($mailbox->getName() != $mailboxName)
+			{
+				$result[] = $mailbox;
+			}
+		}
+		
+		$this->mailboxes = $result;
+	}
+	
 	public function setMailboxes(array $mailboxes)
 	{
 		$this->mailboxes = array();
@@ -88,7 +119,17 @@ class MailElephantModel_User
 	public function setEmailFromSettings(MailElephantModel_MailSenderDetails $fromSettings)
 	{
 		$this->emailFromSettings = $fromSettings;
-	}	
+	}
+	
+	public function setUnsubscribeHtml($unsubscribeHtml)
+	{
+		$this->unsubscribeHtml = $unsubscribeHtml;
+	}
+	
+	public function setUnsubscribeText($unsubscribeText)
+	{
+		$this->unsubscribeText = $unsubscribeText;
+	}
 	
 	public static function fetchOneByEmail(Common_Storage_Provider_Interface $db, $email)
 	{
@@ -121,7 +162,9 @@ class MailElephantModel_User
 					new MailElephantModel_MailSenderDetails(
 							$result['emailFromAddress'],
 							$result['emailFromName'],
-							$result['emailFromReplyTo']));
+							$result['emailFromReplyTo']),
+					$result['unsubscribeHtml'],
+					$result['unsubscribeText']);
 		}
 		
 		return self::$cache[$email];
@@ -149,6 +192,8 @@ class MailElephantModel_User
 						'mailboxes' => $mailboxes,
 						'emailFromAddress' => $this->emailFromSettings->getAddress(),
 						'emailFromName' => $this->emailFromSettings->getName(),
-						'emailFromReplyTo' => $this->emailFromSettings->getReplyTo()));
+						'emailFromReplyTo' => $this->emailFromSettings->getReplyTo(),
+						'unsubscribeHtml' => $this->unsubscribeHtml,
+						'unsubscribeText' => $this->unsubscribeText));
 	}
 }

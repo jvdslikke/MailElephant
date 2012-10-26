@@ -65,7 +65,8 @@ table thead td {
 	
 }
 
-table form {
+table form,
+li form {
 	display: inline;
 }
 

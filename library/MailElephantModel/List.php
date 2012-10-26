@@ -74,6 +74,31 @@ class MailElephantModel_List
 		return null;		
 	}
 	
+	/**
+	 * @return boolean If the subscribtion was found and has been deleted
+	 */
+	public function deleteSubscribtionByEmail($email)
+	{
+		$new = array();
+		
+		$deleted = false;
+		foreach($this->subscribtions as $subscribtion)
+		{
+			if($subscribtion->getEmail() == $email)
+			{
+				$deleted = true;
+			}
+			else
+			{
+				$new[] = $subscribtion;				
+			}			
+		}
+		
+		$this->subscribtions = $new;
+		
+		return $deleted;
+	}
+	
 	public static function fetchOneById(Common_Storage_Provider_Interface $storage, $id)
 	{
 		$data = $storage->fetchOneBy('lists', array('_id'=>$id));
@@ -140,5 +165,10 @@ class MailElephantModel_List
 		{
 			$storage->update('lists', array('_id'=>$this->id), $data);
 		}
+	}
+	
+	public function delete(Common_Storage_Provider_Interface $storage)
+	{
+		$storage->delete('lists', array('_id'=>$this->id));
 	}
 }

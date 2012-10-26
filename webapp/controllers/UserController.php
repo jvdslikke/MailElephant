@@ -16,8 +16,9 @@ class UserController extends MailElephantWeb_Controller_Action_Abstract
 				{
 					$this->getLoggedInUser()->setPasswordPlainText($form->getNewPassword());					
 				}
-				
 				$this->getLoggedInUser()->setEmailFromSettings($form->getMailSenderDetails());
+				$this->getLoggedInUser()->setUnsubscribeHtml($form->getUnsubscribeHtml());
+				$this->getLoggedInUser()->setUnsubscribeText($form->getUnsubscribeText());
 				
 				$this->getLoggedInUser()->save($this->getStorageProvider());
 				

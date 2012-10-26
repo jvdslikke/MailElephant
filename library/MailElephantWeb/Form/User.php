@@ -7,6 +7,8 @@ class MailElephantWeb_Form_User extends Zend_Form
 	private $emailFromAddressElem;
 	private $emailFromNameElem;
 	private $emailReplyToElem;
+	private $unsubscribeHtmlElem;
+	private $unsubscribeTextElem;
 	
 	public function __construct()
 	{
@@ -32,6 +34,16 @@ class MailElephantWeb_Form_User extends Zend_Form
 		$this->emailReplyToElem = new Zend_Form_Element_Text('email-reply-to');
 		$this->emailReplyToElem->setLabel("Email reply to");
 		
+		$this->unsubscribeHtmlElem = new Zend_Form_Element_Textarea('unsubscribe-html');
+		$this->unsubscribeHtmlElem->setAttrib('rows', 3);
+		$this->unsubscribeHtmlElem->setAttrib('cols', 50);
+		$this->unsubscribeHtmlElem->setLabel("Unsubscribe html (replacements: {listid-url}, {email-url})");
+		
+		$this->unsubscribeTextElem = new Zend_Form_Element_Textarea('unsubscribe-text');
+		$this->unsubscribeTextElem->setAttrib('rows', 3);
+		$this->unsubscribeTextElem->setAttrib('cols', 50);
+		$this->unsubscribeTextElem->setLabel("Unsubscribe text");
+		
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setValue("save");
 		
@@ -41,6 +53,8 @@ class MailElephantWeb_Form_User extends Zend_Form
 				$this->emailFromAddressElem,
 				$this->emailFromNameElem,
 				$this->emailReplyToElem,
+				$this->unsubscribeHtmlElem,
+				$this->unsubscribeTextElem,
 				$submit));
 	}
 	
@@ -52,6 +66,9 @@ class MailElephantWeb_Form_User extends Zend_Form
 			$this->emailFromNameElem->setValue($user->getEmailFromSettings()->getName());
 			$this->emailReplyToElem->setValue($user->getEmailFromSettings()->getReplyTo());
 		}
+		
+		$this->unsubscribeHtmlElem->setValue($user->getUnsubscribeHtml());
+		$this->unsubscribeTextElem->setValue($user->getUnsubscribeText());
 	}
 	
 	public function newPasswordProvided()
@@ -80,5 +97,15 @@ class MailElephantWeb_Form_User extends Zend_Form
 		}
 		
 		return $result;
+	}
+	
+	public function getUnsubscribeHtml()
+	{
+		return $this->unsubscribeHtmlElem->getValue();
+	}
+	
+	public function getUnsubscribeText()
+	{
+		return $this->unsubscribeTextElem->getValue();
 	}
 }

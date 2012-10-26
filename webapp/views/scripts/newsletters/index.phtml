@@ -1,9 +1,18 @@
+<ul class="actions">
+	<li>
+		<a href="<?php echo $this->url(array('action'=>"add-file")) ?>">add newsletter from file</a>
+	</li>
+	<li>
+		<a href="<?php echo $this->url(array('action'=>"add-from-mailbox")) ?>">add newsletter from mailbox</a>
+	</li>
+</ul>
+
 <table>
 	<thead>
 		<tr>
 			<th>date</th>
 			<th>subject</th>
-			<th># attachments</th>
+			<th>attachments</th>
 			<th></th>
 		</tr>
 	</thead>

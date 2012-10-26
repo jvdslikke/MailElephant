@@ -139,14 +139,15 @@ class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 	}
 	
 	private function _createCampain(MailElephantModel_List $list, MailElephantModel_Newsletter $newsletter)
-	{
+	{		
 		$campain = new MailElephantModel_Campain(
 				null, 
 				$this->getLoggedInUser(), 
 				MailElephantModel_SwiftStaticNewsletter::createFromNewsletter($newsletter), 
 				new DateTime(), 
 				array(),
-				true);
+				true,
+				$list->getId());
 		
 		foreach($list->getSubscribtions() as $subscribtion)
 		{

@@ -66,8 +66,16 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 	
 	public function addFromMailboxAction()
 	{
-		$user = Zend_Auth::getInstance()->getIdentity();
-		$this->view->mailboxes = $user->getMailboxes();
+		$deleteMailbox = $this->getRequest()->getParam("delete-mailbox");
+		if($deleteMailbox)
+		{
+			$this->getLoggedInUser()->deleteMailbox($deleteMailbox);
+			$this->getLoggedInUser()->save($this->getStorageProvider());
+			$this->addFlashMessage("Mailbox deleted");
+			$this->_getRedirector()->gotoSimpleAndExit("add-from-mailbox");
+		}
+
+		$this->view->mailboxes = $this->getLoggedInUser()->getMailboxes();
 	}
 	
 	public function mailboxAction()
@@ -93,18 +101,7 @@ class NewslettersController extends MailElephantWeb_Controller_Action_Abstract
 			if($form->isValid($formData))
 			{
 				// remove edited mailbox
-				if($editMailbox != null)
-				{
-					$mailboxes = array();
-					foreach($this->getLoggedInUser()->getMailboxes() as $mailbox)
-					{
-						if($mailbox->getName() != $editMailbox->getName())
-						{
-							$mailboxes[] = $mailbox;
-						}
-					}
-					$this->getLoggedInUser()->setMailboxes($mailboxes);
-				}
+				$this->getLoggedInUser()->deleteMailbox($editMailboxName);
 				
 				$mailbox = $form->getMailboxData();
 				

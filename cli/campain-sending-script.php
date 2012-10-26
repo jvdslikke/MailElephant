@@ -31,7 +31,10 @@ set_exception_handler('exception_handler');
 // error handler
 function error_handler($errno, $errstr, $errfile, $errline)
 {
-	throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+	if(error_reporting() & $errno)
+	{
+		throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+	}
 }
 set_error_handler("error_handler");
 
@@ -94,6 +97,8 @@ if(MailElephantModel_Status::isCampainSendingScriptRunning($storage))
 // set running
 MailElephantModel_Status::setCampainSendingScriptRunning($storage, true);
 
+echo "looking for unsent items...\n";
+
 // get open campains
 $campains = MailElephantModel_Campain::fetchOpenCampains($storage);
 
@@ -130,10 +135,22 @@ if(count($sendingItemsFlat) > 0)
 		/* @var $sendingItem MailElephantModel_CampainSendingItem */
 		$sendingItem = $sendingItemFlat['sendingItem'];
 		
+		echo "preparing...\n";
+		
+		$newsletter = clone $campain->getNewsletter();
+
+		$newsletter->addUnsubscribeInfo(
+				$campain->getUser()->getUnsubscribeHtml(), 
+				$campain->getUser()->getUnsubscribeText(), 
+				MailElephantModel_List::fetchOneById($storage, $campain->getListId()), 
+				$sendingItem->getRecipientEmail());
+		
+		echo "sending...\n";
+		
 		try
-		{
+		{	
 			$sender->send(
-					$campain->getNewsletter(),
+					$newsletter,
 					$sendingItem->getRecipientEmail(),
 					$sendingItem->getRecipientName(),
 					$campain->getUser()->getEmailFromSettings());
@@ -144,6 +161,8 @@ if(count($sendingItemsFlat) > 0)
 		{
 			$sendingItem->setError($e->getMessage());
 		}
+		
+		echo "saving...\n";
 		
 		//TODO do not update the whole campain, only the item
 		$campain->save($storage);

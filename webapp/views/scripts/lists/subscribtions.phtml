@@ -1,13 +1,18 @@
-<p>
-	<a href="<?php echo $this->url(array('action'=>"import-subscribtions")) ?>">import subscribtions</a>
-	<a href="<?php echo $this->url(array('action'=>"create-subscribtion")) ?>">create subscribtion</a>
-</p>
+<ul class="actions">
+	<li>
+		<a href="<?php echo $this->url(array('action'=>"import-subscribtions")) ?>">add subscribtions from file</a>
+	</li>
+	<li>
+		<a href="<?php echo $this->url(array('action'=>"create-subscribtion")) ?>">create new subscribtion</a>
+	</li>
+</ul>
 
 <table>
 	<thead>
 		<tr>
 			<th>Name</th>
 			<th>Emailaddress</th>
+			<th></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -18,6 +23,12 @@
 			<tr>
 				<td><?php echo $subscribtion->getName() ?></td>
 				<td><?php echo $subscribtion->getEmail() ?></td>
+				<td>
+					<form method="post">
+						<input type="hidden" name="delete-subscribtion" value="<?php echo $subscribtion->getEmail() ?>" />
+						<input type="submit" value="delete" />
+					</form>
+				</td>
 			</tr>
 		<?php endforeach; ?>		
 	</tbody>

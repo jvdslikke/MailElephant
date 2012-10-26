@@ -24,7 +24,7 @@ class MailElephantModel_SwiftMailTransport extends MailElephantModel_MailTranspo
 		$this->swiftMailer = Swift_Mailer::newInstance($transport);
 	}
 	
-	public function send(MailElephantModel_IStaticNewsletter $newsletter, $toEmail=null, $toName=null,
+	public function send(MailElephantModel_StaticNewsletterAbstract $newsletter, $toEmail=null, $toName=null,
 			MailElephantModel_MailSenderDetails $from=null)
 	{
 		if(!is_a($newsletter, 'MailElephantModel_SwiftStaticNewsletter'))

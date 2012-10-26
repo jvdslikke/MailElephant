@@ -14,5 +14,5 @@ abstract class MailElephantModel_MailTransportAbstract
 		return $this->config;
 	}
 	
-	public abstract function send(MailElephantModel_IStaticNewsletter $newsletter, $toEmail, $toName=null);
+	public abstract function send(MailElephantModel_StaticNewsletterAbstract $newsletter, $toEmail, $toName=null);
 }

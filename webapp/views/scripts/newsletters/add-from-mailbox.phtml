@@ -1,18 +1,24 @@
-<?php $this->layout()->nestedLayout = 'newsletter-add-toolbar' ?>
-
 <?php $this->headScript()->appendFile("/script/mailboxes.js") ?>
 
 <div id="Mailboxes">
 	<ul>
-	<?php foreach($this->mailboxes as $mailbox): ?>
+		<?php foreach($this->mailboxes as $mailbox): ?>
+			<li>
+				<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>$mailbox->getName())) ?>" class="mailboxOpener">
+					<?php echo $mailbox->getName() ?></a>
+					
+				( <a href="<?php echo $this->url(array('action'=>"mailbox", 'mailbox'=>$mailbox->getName())) ?>">
+					edit</a> 
+				<form method="post">
+					<input type="hidden" name="delete-mailbox" value="<?php echo $mailbox->getName() ?>" />
+					<input type="submit" value="delete" />
+				</form>)
+			</li>
+		<?php endforeach; ?>
 		<li>
-			<a href="<?php echo $this->url(array('action'=>"open-mailbox", 'mailbox'=>$mailbox->getName())) ?>" class="mailboxOpener">
-				<?php echo $mailbox->getName() ?></a>
-				
-			( <a href="<?php echo $this->url(array('action'=>"mailbox", 'mailbox'=>$mailbox->getName())) ?>">
-				edit</a> )
+			<a href="<?php echo $this->url(array('action'=>"mailbox")) ?>">
+				define a mailbox</a>
 		</li>
-	<?php endforeach; ?>
 	</ul>
 </div>
 
@@ -30,8 +36,6 @@
 </div>
 
 <p>
-	<a href="<?php echo $this->url(array('action'=>"mailbox")) ?>">
-		define a mailbox</a>
 </p>
 
 <?php echo $this->form ?>

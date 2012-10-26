@@ -8,13 +8,15 @@ class MailElephantModel_Campain
 	private $created;
 	private $sendingItems = array();
 	private $paused;
+	private $listId;
 	
 	public function __construct($id,
 			MailElephantModel_User $user,
-			MailElephantModel_IStaticNewsletter $newsletter,
+			MailElephantModel_StaticNewsletterAbstract $newsletter,
 			DateTime $created,
 			array $sendingItems,
-			$paused)
+			$paused,
+			$listId)
 	{
 		$this->id = $id;
 		$this->user = $user;
@@ -22,6 +24,7 @@ class MailElephantModel_Campain
 		$this->created = $created;		
 		$this->setSendingItems($sendingItems);
 		$this->paused = $paused;
+		$this->listId = $listId;
 	}
 	
 	public function getId()
@@ -140,6 +143,11 @@ class MailElephantModel_Campain
 		return ($this->getNumErrorSendingItems() + $this->getNumSentSendingItems()) > 0;
 	}
 	
+	public function getListId()
+	{
+		return $this->listId;
+	}
+	
 	public function setPaused($paused)
 	{
 		$this->paused = $paused;
@@ -209,7 +217,7 @@ class MailElephantModel_Campain
 		
 		return new self($doc['_id'], $user, $newsletter, 
 				$doc['created'], $sendingItems,
-				$doc['paused']);		
+				$doc['paused'], $doc['listId']);		
 	}
 	
 	public function save(Common_Storage_Provider_Interface $storage)
@@ -219,7 +227,8 @@ class MailElephantModel_Campain
 				'newsletter' => utf8_encode(serialize($this->newsletter)),
 				'created' => $this->created,
 				'sendingItems' => array(),
-				'paused' => $this->paused);
+				'paused' => $this->paused,
+				'listId' => $this->listId);
 		
 		foreach($this->sendingItems as $sendingItem)
 		{
