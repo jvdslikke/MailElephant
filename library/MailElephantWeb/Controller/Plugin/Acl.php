@@ -12,28 +12,26 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl = new Zend_Acl();
 		
 		// resources
-		$acl->addResource('newsletters');
-		$acl->addResource('auth');
-		$acl->addResource('subscribtions');
-		$acl->addResource('error');
-		$acl->addResource('lists');
-		$acl->addResource('index');
-		$acl->addResource('campains');
-		$acl->addResource('user');
+		$acl->addResource('/newsletters');
+		$acl->addResource('/auth');
+		$acl->addResource('/error');
+		$acl->addResource('/index');
+		$acl->addResource('/lists');
+		$acl->addResource('/campains');
+		$acl->addResource('/user');
 		
 		// roles
 		$acl->addRole(self::GUEST_ROLE_ID);
 		$acl->addRole(self::AUTHENTICATED_ROLE_ID);
 		
 		// rules
-		$acl->allow(null, 'error');
-		$acl->allow(null, 'auth');
-		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'newsletters');
-		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'subscribtions');
-		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'lists');
-		$acl->allow(null, 'index');
-		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'campains');
-		$acl->allow(self::AUTHENTICATED_ROLE_ID, 'user');
+		$acl->allow(null, '/error');
+		$acl->allow(null, '/auth');
+		$acl->allow(self::AUTHENTICATED_ROLE_ID, '/newsletters');
+		$acl->allow(self::AUTHENTICATED_ROLE_ID, '/lists');
+		$acl->allow(null, '/index');
+		$acl->allow(self::AUTHENTICATED_ROLE_ID, '/campains');
+		$acl->allow(self::AUTHENTICATED_ROLE_ID, '/user');
 		
 		return $acl;
 	}
@@ -55,14 +53,25 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 			$role = self::AUTHENTICATED_ROLE_ID;
 		}
 		
+		// get most specific resource
+		$currentResource = "";
+		foreach(self::$acl->getResources() as $resource)
+		{
+			if(strncmp($resource, $request->getPathInfo(), strlen($resource)) === 0
+					&& strlen($resource) > strlen($currentResource))
+			{
+				$currentResource = $resource;
+			}
+		}
+		
 		$authorized = false;
 		
-		if(self::$acl->has($request->getControllerName()))
+		if($currentResource)
 		{
-			if(!self::$acl->isAllowed($role, $request->getControllerName()))
+			if(!self::$acl->isAllowed($role, $currentResource))
 			{
 				if($role == self::GUEST_ROLE_ID
-						&& self::$acl->isAllowed(self::AUTHENTICATED_ROLE_ID, $request->getControllerName()))
+						&& self::$acl->isAllowed(self::AUTHENTICATED_ROLE_ID, $currentResource))
 				{
 					$this->getResponse()->setHttpResponseCode(401);
 					$request->setControllerName('auth');
@@ -85,7 +94,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		if(!$authorized)
 		{
 			$request->setControllerName('error');
-			$request->setActionName('forbidden');			
+			$request->setActionName('forbidden');
 		}
 	}
 }

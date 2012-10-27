@@ -159,7 +159,11 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 		
 		foreach($doc as $var=>$value)
 		{
-			if($value instanceof MongoId)
+			if(is_array($value))
+			{
+				$value = $this->createArrayFromResultDoc($value);
+			}
+			elseif($value instanceof MongoId)
 			{
 				$value = $value->{'$id'};
 			}

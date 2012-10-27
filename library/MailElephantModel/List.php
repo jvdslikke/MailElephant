@@ -115,7 +115,8 @@ class MailElephantModel_List
 		{
 			$subscribtions[] = new MailElephantModel_Subscribtion(
 					$subscribtionData['email'],
-					$subscribtionData['name']);
+					$subscribtionData['name'],
+					$subscribtionData['added']);
 		}
 		
 		return new self($data['_id'], $data['title'], $user, $subscribtions);
@@ -131,10 +132,11 @@ class MailElephantModel_List
 			$list = new self($resultDoc['_id'], $resultDoc['title'], $user);
 			
 			foreach($resultDoc['subscribtions'] as $subscribtion)
-			{
+			{				
 				$list->addSubscribtion(new MailElephantModel_Subscribtion(
 						$subscribtion['email'], 
-						$subscribtion['name']));
+						$subscribtion['name'],
+						$subscribtion['added']));
 			}
 			
 			$result[] = $list;
@@ -154,7 +156,8 @@ class MailElephantModel_List
 		{
 			$data['subscribtions'][] = array(
 					'email' => $subscribtion->getEmail(),
-					'name' => $subscribtion->getName());
+					'name' => $subscribtion->getName(),
+					'added' => $subscribtion->getAdded());
 		}
 		
 		if($this->id === null)

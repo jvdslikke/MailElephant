@@ -12,6 +12,7 @@
 		<tr>
 			<th>Name</th>
 			<th>Emailaddress</th>
+			<th>Added</th>
 			<th></th>
 		</tr>
 	</thead>
@@ -23,6 +24,7 @@
 			<tr>
 				<td><?php echo $subscribtion->getName() ?></td>
 				<td><?php echo $subscribtion->getEmail() ?></td>
+				<td><?php echo $subscribtion->getAdded()->format("d-m-Y H:i") ?></td>
 				<td>
 					<form method="post">
 						<input type="hidden" name="delete-subscribtion" value="<?php echo $subscribtion->getEmail() ?>" />

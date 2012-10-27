@@ -131,6 +131,9 @@ class MailElephantModel_User
 		$this->unsubscribeText = $unsubscribeText;
 	}
 	
+	/**
+	 * @return MailElephantModel_User
+	 */
 	public static function fetchOneByEmail(Common_Storage_Provider_Interface $db, $email)
 	{
 		if(!isset(self::$cache[$email]))

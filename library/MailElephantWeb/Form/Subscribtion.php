@@ -35,7 +35,8 @@ class MailElephantWeb_Form_Subscribtion extends Zend_Form
 	{
 		$this->list->addSubscribtion(new MailElephantModel_Subscribtion(
 				$this->emailInput->getValue(),
-				$this->nameInput->getValue()));
+				$this->nameInput->getValue(),
+				new DateTime()));
 		
 		$this->list->save($storage);
 	}
