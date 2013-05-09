@@ -28,7 +28,7 @@ $autoloader->registerNamespace($config->autoloadernamespaces->toArray());
 require_once 'Swift/swift_required.php';
 
 // time
-date_default_timezone_set(date_default_timezone_get());
+date_default_timezone_set($config->timezone);
 
 // connect to storage
 $storage = Common_Storage_Provider_Factory::factor($config->resources->storage->toArray());

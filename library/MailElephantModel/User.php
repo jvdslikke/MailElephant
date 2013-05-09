@@ -8,12 +8,13 @@ class MailElephantModel_User
 	private $emailFromSettings;
 	private $unsubscribeHtml;
 	private $unsubscribeText;
+	private $roles;
 	
 	private static $cache = array();
 	
 	public function __construct($email, $passwordHash, array $mailboxes,
 			MailElephantModel_MailSenderDetails $emailFromSettings,
-			$unsubscribeHtml, $unsubscribeText)
+			$unsubscribeHtml, $unsubscribeText, array $roles)
 	{
 		$this->email = $email;
 		$this->passwordHash = $passwordHash;
@@ -24,6 +25,7 @@ class MailElephantModel_User
 		
 		$this->unsubscribeHtml = $unsubscribeHtml;
 		$this->unsubscribeText = $unsubscribeText;
+		$this->roles = $roles;
 	}
 	
 	public function getEmail()
@@ -74,6 +76,11 @@ class MailElephantModel_User
 	public function getUnsubscribeText()
 	{
 		return $this->unsubscribeText;
+	}
+	
+	public function hasRole($role)
+	{
+		return in_array($role, $this->roles);
 	}
 	
 	public function deleteMailbox($mailboxName)
@@ -167,7 +174,8 @@ class MailElephantModel_User
 							$result['emailFromName'],
 							$result['emailFromReplyTo']),
 					$result['unsubscribeHtml'],
-					$result['unsubscribeText']);
+					$result['unsubscribeText'],
+					$result['roles']);
 		}
 		
 		return self::$cache[$email];
@@ -197,6 +205,7 @@ class MailElephantModel_User
 						'emailFromName' => $this->emailFromSettings->getName(),
 						'emailFromReplyTo' => $this->emailFromSettings->getReplyTo(),
 						'unsubscribeHtml' => $this->unsubscribeHtml,
-						'unsubscribeText' => $this->unsubscribeText));
+						'unsubscribeText' => $this->unsubscribeText,
+						'roles' => $this->roles));
 	}
 }

@@ -24,8 +24,10 @@ class MailElephantModel_SwiftMailTransport extends MailElephantModel_MailTranspo
 		$this->swiftMailer = Swift_Mailer::newInstance($transport);
 	}
 	
-	public function send(MailElephantModel_StaticNewsletterAbstract $newsletter, $toEmail=null, $toName=null,
-			MailElephantModel_MailSenderDetails $from=null)
+	public function send(MailElephantModel_StaticNewsletterAbstract $newsletter, 
+			$toEmail, $toName,
+			MailElephantModel_MailSenderDetails $from, 
+			$returnPath)
 	{
 		if(!is_a($newsletter, 'MailElephantModel_SwiftStaticNewsletter'))
 		{
@@ -33,15 +35,17 @@ class MailElephantModel_SwiftMailTransport extends MailElephantModel_MailTranspo
 		}
 		/* @var $newsletter MailElephantModel_SwiftStaticNewsletter */
 		
-		if($toEmail !== null)
+		if($toEmail)
 		{
 			$newsletter->setRecipient($toEmail, $toName);
 		}
 		
-		if($from !== null)
+		if($from)
 		{
 			$newsletter->setFrom($from);
 		}
+		
+		$newsletter->setReturnPath($returnPath);
 		
 		$this->swiftMailer->send($newsletter->getSwiftMessage(), $failedRecipients);
 		

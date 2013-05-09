@@ -1,4 +1,4 @@
-<ul class="tasks">
+<ul class="actions">
 	<li>
 		<a href="<?php echo $this->url(array('action'=>"create")) ?>">create new list</a>
 	</li>
@@ -25,11 +25,11 @@
 					<?php echo $list->getNumSubscribtions() ?>
 				</td>
 				<td>
-					<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'list'=>$list->getId())) ?>">
+					<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'list'=>$list->getId())) ?>" class="actionButton">
 						create campain</a>
 					<form method="post">
 						<input type="hidden" name="delete" value="<?php echo $list->getId() ?>" />
-						<input type="submit" value="delete" />
+						<input type="submit" value="delete" class="actionButton" />
 					</form>
 				</td>
 			</tr>

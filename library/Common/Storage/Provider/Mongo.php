@@ -126,8 +126,17 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	public function fetchOneBy($scheme, $identifyingData)
 	{
 		$identifyingData = $this->handleIdentifyingData($identifyingData);
-		return $this->createArrayFromResultDoc(
-				$this->_db->{$scheme}->findOne($identifyingData));
+		
+		$doc = $this->_db->{$scheme}->findOne($identifyingData);
+		
+		if ($doc == null)
+		{
+			return null;
+		}
+		else 
+		{
+			return $this->createArrayFromResultDoc($doc);
+		}
 	}
 	
 	public function fetchMoreBy($scheme, $data)
@@ -156,7 +165,7 @@ class Common_Storage_Provider_Mongo implements Common_Storage_Provider_Interface
 	private function createArrayFromResultDoc($doc)
 	{
 		$result = array();
-		
+
 		foreach($doc as $var=>$value)
 		{
 			if(is_array($value))

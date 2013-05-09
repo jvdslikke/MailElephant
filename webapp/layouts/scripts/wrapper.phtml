@@ -16,54 +16,65 @@
 		?>
 	</head>
 	<body>
+		<div id="Container">
 	
-		<div id="Header">
-			<h1>MailElephant</h1>
-		</div>
-		
-		<div id="Menu">
-			<ul>
-				<li>
-					<a href="/lists">Lists</a>
-				</li>
-				<li>
-					<a href="/newsletters">Newsletters</a>
-				</li>
-				<li>
-					<a href="/campains">Campains</a>
-				</li>
-				<li>
-					<a href="/user/edit">Settings</a>
-				</li>
-			</ul>
-		</div>
-		
-		<div id="Content">
-			<?php if(!empty($this->flashMessages)): ?>
-				<ul id="Messages">
-					<?php foreach($this->flashMessages as $message): ?>
-						<li><?php echo $message ?></li>
-					<?php endforeach; ?>
-				</ul>
-			<?php endif; ?>
-		
-	        <?php /* NESTED LAYOUT SUPPORT */ ?> 
-	        <?php if($this->layout()->nestedLayout): ?>  
-	            <?php $this->layout()->setLayout($this->layout()->nestedLayout); ?> 
-	        <?php else: ?> 
-	            <?php $this->layout()->setLayout('default'); ?> 
-	        <?php endif;?> 
-	        <?php echo $this->layout()->render();  ?>
-		</div>
-		
-		<div id="Footer">
-			<?php if(Zend_Auth::getInstance()->hasIdentity()): ?>
-				Logged in as <?php echo Zend_Auth::getInstance()->getIdentity()->getEmail() ?>
+			<div id="Header">
+				<h1>MailElephant</h1>
+			</div>
 			
-				<a href="<?php echo $this->url(array('controller'=>"auth", 'action'=>"logout"), null, true) ?>">logout</a>
-			<?php else: ?>
-				Not logged in 
-			<?php endif; ?>
+			<div id="Page">
+			
+				<div id="Menu">
+					<div id="Navigation">
+						<ul>
+							<li>
+								<a href="/lists">Lists</a>
+							</li>
+							<li>
+								<a href="/newsletters">Newsletters</a>
+							</li>
+							<li>
+								<a href="/campains">Campains</a>
+							</li>
+							<li>
+								<a href="/user/edit">Settings</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				
+				<div id="Content">
+					<?php if(!empty($this->flashMessages)): ?>
+						<ul id="Messages">
+							<?php foreach($this->flashMessages as $message): ?>
+								<li><?php echo $message ?></li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				
+			        <?php /* NESTED LAYOUT SUPPORT */ ?> 
+			        <?php if($this->layout()->nestedLayout): ?>  
+			            <?php $this->layout()->setLayout($this->layout()->nestedLayout); ?> 
+			        <?php else: ?> 
+			            <?php $this->layout()->setLayout('default'); ?> 
+			        <?php endif;?> 
+			        <?php echo $this->layout()->render();  ?>
+				</div>
+				
+			</div>
+			
+			<div id="Footer">
+				<?php if(Zend_Auth::getInstance()->hasIdentity()): ?>
+					Logged in as <?php echo Zend_Auth::getInstance()->getIdentity()->getEmail() ?>
+				
+					<a href="<?php echo $this->url(array('controller'=>"auth", 'action'=>"logout"), null, true) ?>" class="actionButton">
+						logout
+					</a>
+				<?php else: ?>
+					Not logged in 
+				<?php endif; ?>
+			</div>
+		
 		</div>
 	</body>
 </html>

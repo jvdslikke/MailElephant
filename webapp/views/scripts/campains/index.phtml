@@ -31,7 +31,11 @@
 					<?php endif; ?>
 				</td>
 				<td>
-					<?php echo $campain->getNumErrorSendingItems() ?>
+					<?php if($campain->getNumErrorSendingItems() > 0): ?>
+						<a href="<?php echo $this->url(array('action'=>"view-errors", 'campain'=>$campain->getId())) ?>"><?php echo $campain->getNumErrorSendingItems() ?></a>
+					<?php else: ?>
+						0
+					<?php endif; ?>
 					/ <?php echo $campain->getNumSentSendingItems() ?>
 					/ <?php echo $campain->getNumSendingItems() ?>
 				</td>
@@ -40,16 +44,12 @@
 						<form method="post">
 							<?php if($campain->isPaused()): ?>
 								<input type="hidden" name="unpause" value="<?php echo $campain->getId() ?>" />
-								<input type="submit" value="Unpause" />
+								<input type="submit" value="Unpause" class="actionButton" />
 							<?php else: ?>
 								<input type="hidden" name="pause" value="<?php echo $campain->getId() ?>" />
-								<input type="submit" value="Pause" />
+								<input type="submit" value="Pause" class="actionButton" />
 							<?php endif; ?>
 						</form>
-					<?php endif; ?>
-					
-					<?php if($campain->getNumErrorSendingItems() > 0): ?>
-						<a href="<?php echo $this->url(array('action'=>"view-errors", 'campain'=>$campain->getId())) ?>">view errors</a>
 					<?php endif; ?>
 				</td>
 			</tr>

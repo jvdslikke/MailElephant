@@ -3,7 +3,8 @@
 class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstract
 {
 	const GUEST_ROLE_ID = 'guest';
-	const AUTHENTICATED_ROLE_ID = 'authenticated';
+	const AUTHENTICATED_ROLE_ID = 'user';
+	const ADMIN_ROLE_ID = 'admin';
 	
 	private static $acl;
 	
@@ -12,6 +13,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl = new Zend_Acl();
 		
 		// resources
+		$acl->addResource('/');
 		$acl->addResource('/newsletters');
 		$acl->addResource('/auth');
 		$acl->addResource('/error');
@@ -20,11 +22,14 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$acl->addResource('/campains');
 		$acl->addResource('/user');
 		
-		// roles
-		$acl->addRole(self::GUEST_ROLE_ID);
-		$acl->addRole(self::AUTHENTICATED_ROLE_ID);
+		// roles		
+		$acl->addRole(new Zend_Acl_Role(self::GUEST_ROLE_ID));
+		$acl->addRole(new Zend_Acl_Role(self::AUTHENTICATED_ROLE_ID, self::GUEST_ROLE_ID));
+		$acl->addRole(new Zend_Acl_Role(self::ADMIN_ROLE_ID, self::AUTHENTICATED_ROLE_ID));
 		
 		// rules
+		$acl->allow(self::ADMIN_ROLE_ID);
+		$acl->allow(null, '/');
 		$acl->allow(null, '/error');
 		$acl->allow(null, '/auth');
 		$acl->allow(self::AUTHENTICATED_ROLE_ID, '/newsletters');
@@ -50,7 +55,7 @@ class MailElephantWeb_Controller_Plugin_Acl extends Zend_Controller_Plugin_Abstr
 		$role = self::GUEST_ROLE_ID;
 		if(Zend_Auth::getInstance()->hasIdentity())
 		{
-			$role = self::AUTHENTICATED_ROLE_ID;
+			$role = new MailElephantWeb_User(Zend_Auth::getInstance()->getIdentity());
 		}
 		
 		// get most specific resource

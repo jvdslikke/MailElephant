@@ -6,13 +6,15 @@ class Common_MailTransportConfig
 	private $port;
 	private $username;
 	private $password;
+	private $returnPathDomain;
 	
-	public function __construct($host, $port, $username, $password)
+	public function __construct($host, $port, $username, $password, $returnPathDomain)
 	{
 		$this->host = $host;
 		$this->port = $port;
 		$this->username = $username;
 		$this->password = $password;
+		$this->returnPathDomain = $returnPathDomain;
 	}
 	
 	public static function createFromOptions($options)
@@ -23,6 +25,12 @@ class Common_MailTransportConfig
 			throw new Exception("no host specified");
 		}
 		$host = $options['host'];
+		
+		if(empty($options['returnPathDomain']))
+		{
+			throw new Exception("no return path domain specified");
+		}
+		$returnPathDomain = $options['returnPathDomain'];
 		
 		// other options
 		$port = null;
@@ -42,7 +50,7 @@ class Common_MailTransportConfig
 			$password = $options['password'];
 		}
 		
-		return new self($host, $port, $username, $password);
+		return new self($host, $port, $username, $password, $returnPathDomain);
 	}
 	
 	public function getHost()
@@ -73,5 +81,10 @@ class Common_MailTransportConfig
 	public function getPassword()
 	{
 		return $this->password;
+	}
+	
+	public function getReturnPathDomain()
+	{
+		return $this->returnPathDomain;
 	}
 }

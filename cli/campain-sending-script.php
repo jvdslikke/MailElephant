@@ -137,23 +137,35 @@ if(count($sendingItemsFlat) > 0)
 		
 		echo "preparing...\n";
 		
-		$newsletter = clone $campain->getNewsletter();
-
-		$newsletter->addUnsubscribeInfo(
-				$campain->getUser()->getUnsubscribeHtml(), 
-				$campain->getUser()->getUnsubscribeText(), 
-				MailElephantModel_List::fetchOneById($storage, $campain->getListId()), 
-				$sendingItem->getRecipientEmail());
-		
-		echo "sending...\n";
-		
 		try
-		{	
+		{
+			$newsletter = clone $campain->getNewsletter();
+			
+			$list = MailElephantModel_List::fetchOneById($storage, $campain->getListId());
+			
+			if($list == null)
+			{
+				throw new Exception("list not found");
+			}
+	
+			$newsletter->addUnsubscribeInfo(
+					$campain->getUser()->getUnsubscribeHtml(), 
+					$campain->getUser()->getUnsubscribeText(), 
+					$list, 
+					$sendingItem->getRecipientEmail());
+			
+			$returnPath = "bounce".urlencode($list->getId())."+";
+			$returnPath .= str_replace('@', '=', $sendingItem->getRecipientEmail());
+			$returnPath .= '@'.$config->getMailTransportConfig()->getReturnPathDomain();
+			
+			echo "sending...\n";
+			
 			$sender->send(
 					$newsletter,
 					$sendingItem->getRecipientEmail(),
 					$sendingItem->getRecipientName(),
-					$campain->getUser()->getEmailFromSettings());
+					$campain->getUser()->getEmailFromSettings(),
+					$returnPath);
 			
 			$sendingItem->setSent();
 		}

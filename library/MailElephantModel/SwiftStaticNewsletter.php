@@ -16,6 +16,11 @@ class MailElephantModel_SwiftStaticNewsletter extends MailElephantModel_StaticNe
 		return $this->swiftMessage->getSubject();
 	}
 	
+	public function setReturnPath($returnPath)
+	{
+		$this->swiftMessage->setReturnPath($returnPath);
+	}
+	
 	//TODO seperate abstract protected methods for setHtmlBody, setPlainTextBody, setAttachments
 	public static function createFromNewsletter(MailElephantModel_Newsletter $newsletter)
 	{
@@ -148,5 +153,10 @@ class MailElephantModel_SwiftStaticNewsletter extends MailElephantModel_StaticNe
 				$child->setBody($body, $child->getContentType());
 			}
 		}
+	}
+	
+	public function __clone()
+	{
+		$this->swiftMessage = clone $this->swiftMessage;
 	}
 }

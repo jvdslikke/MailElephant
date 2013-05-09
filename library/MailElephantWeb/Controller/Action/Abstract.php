@@ -31,10 +31,23 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 		$this->_helper->layout()->disableLayout();		
 	}
 	
+	/**
+	 * @return Zend_Controller_Action_Helper_ViewRenderer
+	 */
+	private function getViewRenderer()
+	{
+		return $this->_helper->viewRenderer;
+	}
+	
 	public function disableView()
 	{
 		$this->disableLayout();
-		$this->_helper->viewRenderer->setNoRender(true);		
+		$this->getViewRenderer()->setNoRender(true);		
+	}
+	
+	public function isViewDisabled()
+	{
+		return $this->getViewRenderer()->getNoRender();
 	}
 	
 	/**
@@ -79,27 +92,41 @@ abstract class MailElephantWeb_Controller_Action_Abstract extends Zend_Controlle
 	/**
 	 * @return Zend_Controller_Action_Helper_FlashMessenger
 	 */
-	private function getFlashMessenger()
+	private function _getFlashMessenger()
 	{
 		return $this->_helper->getHelper('FlashMessenger');
 	}
 	
 	public function addFlashMessage($message)
 	{
-		$this->getFlashMessenger()->addMessage($message);
+		$this->_getFlashMessenger()->addMessage("<p>$message</p>");
+	}
+	
+	public function addSuccesMessage($message)
+	{
+		$this->_addFlashMessageWithClass($message, "succes");
+	}
+	
+	public function addErrorMessage($message)
+	{
+		$this->_addFlashMessageWithClass($message, "error");
+	}
+	
+	protected function _addFlashMessageWithClass($message, $class)
+	{
+		$this->_getFlashMessenger()->addMessage("<p class=\"$class\">$message</p>");
 	}
 	
 	public function postDispatch()
 	{
-		//TODO don't do on disabled view
-		if(!$this->getResponse()->isRedirect())
+		if(!$this->getResponse()->isRedirect() && !$this->isViewDisabled());
 		{
 			$messages = array();
 			
-			$messages = array_merge($messages, $this->getFlashMessenger()->getCurrentMessages());
-			$this->getFlashMessenger()->clearCurrentMessages();
+			$messages = array_merge($messages, $this->_getFlashMessenger()->getCurrentMessages());
+			$this->_getFlashMessenger()->clearCurrentMessages();
 			
-			$messages = array_merge($messages, $this->getFlashMessenger()->getMessages());
+			$messages = array_merge($messages, $this->_getFlashMessenger()->getMessages());
 			
 			$messages = array_unique($messages);			
 			$this->view->flashMessages = $messages;

@@ -3,7 +3,7 @@
 class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 {
 	public function indexAction()
-	{
+	{		
 		// pause
 		$pauseCampainId = $this->getRequest()->getParam('pause');
 		if(!empty($pauseCampainId))
@@ -68,7 +68,7 @@ class CampainsController extends MailElephantWeb_Controller_Action_Abstract
 			}
 			else
 			{
-				$this->addFlashMessage("Campain saved");
+				$this->addSuccesMessage("Campain saved");
 				
 				$this->_createCampain($list, $newsletter);
 			

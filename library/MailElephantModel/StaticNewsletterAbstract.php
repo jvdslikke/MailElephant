@@ -8,6 +8,11 @@ abstract class MailElephantModel_StaticNewsletterAbstract implements Serializabl
 	abstract public function getSubject();
 	
 	/**
+	 * Sets the return path
+	 */
+	abstract public function setReturnPath($returnPath);
+	
+	/**
 	 * Sets the newsletter recipients
 	 */
 	abstract public function setRecipient($email, $name=null);
@@ -40,4 +45,9 @@ abstract class MailElephantModel_StaticNewsletterAbstract implements Serializabl
 		$this->addUnsubscribeHtml($unsubscribeHtml);
 		$this->addUnsubscribeText($unsubscribeText);
 	}
+	
+	/**
+	 * The object should be cloneable
+	 */
+	abstract public function __clone();
 }

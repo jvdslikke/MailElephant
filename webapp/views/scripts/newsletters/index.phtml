@@ -26,15 +26,15 @@
 			<td><?php echo $newsletter->getSubject() ?></td>
 			<td><?php echo $newsletter->getNumAttachments() ?></td>
 			<td>
-				<a href="<?php echo $this->url(array('action'=>"view", 'newsletterid'=>$newsletter->getId())) ?>">
+				<a href="<?php echo $this->url(array('action'=>"view", 'newsletterid'=>$newsletter->getId())) ?>" class="actionButton">
 					view</a>
-				<a href="<?php echo $this->url(array('action'=>"edit", 'newsletterid'=>$newsletter->getId())) ?>">
+				<a href="<?php echo $this->url(array('action'=>"edit", 'newsletterid'=>$newsletter->getId())) ?>" class="actionButton">
 					edit</a>
 				<form action="" method="post">
 					<input type="hidden" name="delete-newsletterid" value="<?php echo $newsletter->getId() ?>" />
-					<input type="submit" value="delete" />
+					<input type="submit" value="delete" class="actionButton"/>
 				</form>
-				<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'newsletter'=>$newsletter->getId())) ?>">
+				<a href="<?php echo $this->url(array('controller'=>"campains", 'action'=>"create", 'newsletter'=>$newsletter->getId())) ?>" class="actionButton">
 					create campain</a>
 			</td>
 		</tr>
